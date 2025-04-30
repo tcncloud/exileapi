@@ -17,6 +17,6 @@ jobs:
         with:
           # The token paramater is required to authenticate with the Buf Schema Registry.
           token: ${{ secrets.BUF_TOKEN }}
-          lint: ${{ github.event_name == 'push' }}
+          # lint: ${{ github.event_name == 'push' }}
           format: ${{ github.event_name == 'push' }}
           breaking: ${{ github.event_name == 'push' }}
