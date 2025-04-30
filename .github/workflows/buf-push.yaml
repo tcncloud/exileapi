@@ -1,0 +1,22 @@
+name: Buf Push
+
+on:
+  push:
+    branches:
+      - master
+  create:
+    tags:
+      - v* # Trigger on tags starting with 'v', adjust if your tags differ
+
+jobs:
+  buf-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # Optional: Recommended for fetching private dependencies
+      - name: Log in to Buf Schema Registry
+        run: buf registry login --username ${{ secrets.BUF_USER }} --token ${{ secrets.BUF_TOKEN }} buf.build
+      - name: Push schema to Buf Schema Registry
+        run: buf push 
