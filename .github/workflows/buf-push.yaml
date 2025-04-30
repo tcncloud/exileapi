@@ -17,6 +17,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }} # Optional: Recommended for fetching private dependencies
       - name: Log in to Buf Schema Registry
-        run: buf registry login --username ${{ secrets.BUF_USER }} --token ${{ secrets.BUF_TOKEN }} buf.build
+        run: buf registry login ${{ secrets.BUF_USER }} --token-stdin < ${{ secrets.BUF_TOKEN }} 
       - name: Push schema to Buf Schema Registry
         run: buf push 
