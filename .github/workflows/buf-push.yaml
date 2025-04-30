@@ -9,14 +9,14 @@ on:
       - v* # Trigger on tags starting with 'v', adjust if your tags differ
 
 jobs:
-  buf-push:
+  buf:      
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: bufbuild/buf-setup-action@v1
+      - uses: bufbuild/buf-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }} # Optional: Recommended for fetching private dependencies
-      - name: Log in to Buf Schema Registry
-        run: echo ${{secrets.BUF_TOKEN}} | buf registry login ${{ secrets.BUF_USER }} --token-stdin  
-      - name: Push schema to Buf Schema Registry
-        run: buf push 
+          # The token paramater is required to authenticate with the Buf Schema Registry.
+          token: ${{ secrets.BUF_TOKEN }}
+          lint: ${{ github.event_name == 'push' }}
+          format: ${{ github.event_name == 'push' }}
+          breaking: ${{ github.event_name == 'push' }}
