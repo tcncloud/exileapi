@@ -1,0 +1,278 @@
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Copyright 2024 TCN Inc
+
+syntax = "proto3";
+
+package tcnapi.exile.gate.v2;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "tcnapi/exile/core/v2/entities.proto";
+
+message ExileAgentCall {
+  int64 agent_call_sid = 1;
+  int64 call_sid = 2;
+  string call_type = 3;
+  int64 talk_duration = 4;
+  int64 call_wait_duration = 5;
+  int64 wrap_up_duration = 6;
+  int64 pause_duration = 7;
+  int64 transfer_duration = 8;
+  int64 manual_duration = 9;
+  int64 preview_duration = 10;
+  int64 hold_duration = 11;
+  int64 agent_wait_duration = 12;
+  int64 suspended_duration = 13;
+  int64 external_transfer_duration = 14;
+  google.protobuf.Timestamp create_time = 15;
+  google.protobuf.Timestamp update_time = 16;
+  string org_id = 17;
+  string user_id = 18;
+  string internal_key = 19;
+  repeated google.protobuf.Value task_data_keys = 20;
+  repeated google.protobuf.Value task_data_values = 21;
+  string partner_agent_id = 100;
+}
+
+message StringField {
+  optional string value = 1;
+}
+
+message ExileTelephonyResult {
+  int64 call_sid = 1;
+  string call_type = 2;
+  google.protobuf.Timestamp create_time = 3;
+  google.protobuf.Timestamp update_time = 4;
+  Status status = 5;
+  Result result = 6;
+  string caller_id = 7;
+  string phone_number = 8;
+  google.protobuf.Timestamp start_time = 9;
+  google.protobuf.Timestamp end_time = 10;
+  int64 delivery_length = 11;
+  int64 linkback_length = 12;
+  string pool_id = 13;
+  string record_id = 14;
+  int64 client_sid = 15;
+  string org_id = 16;
+  string internal_key = 17;
+  //   string partner_agent_id = 100;
+  repeated google.protobuf.Value task_data_keys = 20;
+  repeated google.protobuf.Value task_data_values = 21;
+  enum Result {
+    RESULT_UNKNOWN = 0;
+    PENDING = 1000;
+    ANSWERED = 2000;
+    ANSWERED_LINKCALL = 2100;
+    ANSWERED_LINKCALL_ABANDONED = 2110;
+    ANSWERED_LINKCALL_AGENT_TALK = 2120;
+    ANSWERED_LINKCALL_SUSPENDED = 2130;
+    ANSWERED_LINKCALL_SUSPENDED_TIMEOUT = 2140;
+    ANSWERED_LINKCALL_SUSPENDED_INBOUND_OVERRIDE = 2150;
+    ANSWERED_LINKCALL_SUSPENDED_RESUME = 2160;
+    ANSWERED_HANGUP = 2200;
+    ANSWERED_VOICEMAIL = 2300;
+    MACHINE = 3000;
+    MACHINE_DELIVERED = 3100;
+    MACHINE_HANGUP = 3200;
+    MACHINE_FAILED = 3300;
+    FAX = 4000;
+    FAX_DELIVERED = 4100;
+    BUSY = 5000;
+    NOANSWER = 6000;
+    INVALID = 7000;
+    INVALID_INCOMPLETE_NUMBER = 7100;
+    INVALID_UNKNOWN_PREFIX = 7200;
+    INVALID_UNKNOWN_PREFIX_NPA = 7210;
+    INVALID_UNKNOWN_PREFIX_NPANXX = 7220;
+    INVALID_PREFIX_NPANXX_NOT_FOUND = 7230;
+    INVALID_NO_ROUTE = 7300;
+    INVALID_DISCONNECTED = 7400;
+    INVALID_DISCONNECTED_SKIPTRACE = 7410;
+    FAILED = 8000;
+    FAILED_NO_LINES = 8100;
+    FAILED_CIRCUITS_BUSY = 8200;
+    FAILED_REFUSED = 8300;
+    FAILED_REFUSED_LEGAL = 8310;
+    FAILED_REFUSED_TECHNICAL = 8320;
+    FAILED_INTERNAL_ERROR = 8330;
+    FAILED_REFUSED_RETRIES_EXHAUSTED = 8340;
+    FAILED_REFUSED_BLOCK = 8350;
+    CANCELED = 9000;
+    CANCELED_TIMEZONE = 9100;
+    CANCELED_TIMEOUT = 9200;
+    CANCELED_DNCL = 9300;
+    CANCELED_CELLULAR_DNCL = 9310;
+    CANCELED_DNCL_ZIP_CODE = 9320;
+    CANCELED_MAX_RETRY = 9400;
+    CANCELED_INCOMPLETE_NUMBER = 9500;
+  }
+  enum Status {
+    STATUS_UNKNOWN = 0;
+    SCHEDULED = 3100;
+    RUNNING = 3200;
+    COMPLETED = 3300;
+  }
+}
+
+message ExileAgentResponse {
+  int64 agent_call_response_sid = 1;
+  int64 call_sid = 2;
+  string call_type = 3;
+  string response_key = 4;
+  string response_value = 5;
+  google.protobuf.Timestamp create_time = 6;
+  google.protobuf.Timestamp update_time = 7;
+  int64 client_sid = 8;
+  string org_id = 9;
+  int64 agent_sid = 10;
+  string user_id = 11;
+  string internal_key = 12;
+  string partner_agent_id = 100;
+}
+
+message AgentEvent {
+  string channel = 1;
+  AgentState old_state = 2;
+  AgentState new_state = 3;
+  int64 state_changed = 4;
+  string tenant_id = 5;
+  string server = 6;
+  int64 agent_id = 7;
+  int64 state_age = 8;
+  int64 timestamp = 9;
+  string timer = 10;
+  int64 timer_value = 11;
+  int64 hunt_group_id = 12;
+  int64 current_session_id = 13;
+  bool monitoring = 15;
+  int64 calls_count = 16;
+  string caller_id = 17;
+  string dnid = 18;
+  int64 intercom_peer_id = 19;
+  int64 peer_call_id = 20;
+  CallType peer_call_type = 21;
+  map<string, int64> skills = 22;
+  map<string, int64> allSkills = 23;
+  int64 last_sip_code = 24;
+  string last_sip_message = 25;
+}
+
+message CallerEvent {
+  string channel = 1;
+  CallerState old_state = 2;
+  CallerState new_state = 3;
+  int64 state_changed = 4;
+  string tenant_id = 5;
+  string server = 6;
+  int64 call_id = 7;
+  int64 state_age = 8;
+  int64 timestamp = 9;
+  string timer = 10;
+  int64 timer_value = 11;
+  int64 hunt_group_id = 12;
+  int64 peer_id = 13;
+  int64 peer_session_id = 14;
+  CallType call_type = 15;
+  bool disconnecting = 16;
+  string config_folder = 17;
+  string counter = 18;
+  map<string, bool> skills = 19;
+  map<string, bool> allSkills = 20;
+}
+
+enum CallerState {
+  CALLER_STATE_UNAVALIABLE = 0;
+  CALLER_STATE_IDLE = 1;
+  CALLER_STATE_READY = 2;
+  CALLER_STATE_HUNGUP = 3;
+  CALLER_STATE_DESTROYED = 4;
+  CALLER_STATE_PEERED = 5;
+  CALLER_STATE_OUTBOUND_LOCKED = 6;
+  CALLER_STATE_OUTBOUND_PEERED = 7;
+  CALLER_STATE_PBX_POPUP_LOCKED = 8;
+  CALLER_STATE_VOICEMAIL = 9;
+  CALLER_STATE_PEERED_WITH_CALL_ON_HOLD = 10;
+  CALLER_STATE_CALLBACK_SUSPENDED = 11;
+  CALLER_STATE_WARM_AGENT_TRANSFER_STARTED = 12;
+  CALLER_STATE_WARM_OUTBOUND_TRANSFER_STARTED = 13;
+  CALLER_STATE_OUTBOUND_DIAL_TRANSFER_STARTED = 14;
+  CALLER_STATE_PREPARED_TO_PEER = 15;
+  CALLER_STATE_WARM_SKILL_TRANSFER_PENDING = 16;
+  // when the transfer starts for the peer
+  CALLER_STATE_CALLER_TRANSFER_PEER = 17;
+  // when the transfer starts for the destination caller
+  CALLER_STATE_CALLER_TRANSFER_MERGED_CALLER = 18;
+  // when the transfer is accepted and the agent leaves the transfer
+  CALLER_STATE_CALLER_PEERED = 19;
+}
+
+enum CallType {
+  // INBOUND should be default
+  CALL_TYPE_INBOUND = 0;
+  CALL_TYPE_OUTBOUND = 1;
+  CALL_TYPE_PREVIEW = 2;
+  CALL_TYPE_MANUAL = 3;
+  CALL_TYPE_MAC = 4;
+}
+enum AgentState {
+  AGENT_STATE_UNAVALIABLE = 0;
+  AGENT_STATE_IDLE = 1;
+  AGENT_STATE_READY = 2;
+  AGENT_STATE_HUNGUP = 3;
+  AGENT_STATE_DESTROYED = 4;
+  AGENT_STATE_PEERED = 5;
+  AGENT_STATE_PAUSED = 6;
+  AGENT_STATE_WRAPUP = 7;
+  AGENT_STATE_PREPARING_AFTER_IDLE = 8;
+  AGENT_STATE_PREPARING_AFTER_WRAPUP = 9;
+  AGENT_STATE_PREPARING_AFTER_PAUSE = 10;
+  AGENT_STATE_PREPARING_AFTER_DIAL_CANCEL = 11;
+  AGENT_STATE_PREPARING_AFTER_PBX_REJECT = 12;
+  AGENT_STATE_PREPARING_AFTER_PBX_HANGUP = 13;
+  AGENT_STATE_PREPARING_AFTER_PBX_WAS_TAKEN = 14;
+  AGENT_STATE_PREPARING_AFTER_GUI_BUSY = 15;
+  AGENT_STATE_MANUAL_DIAL_PREPARED = 16;
+  AGENT_STATE_PREVIEW_DIAL_PREPARED = 17;
+  AGENT_STATE_MANUAL_DIAL_STARTED = 18;
+  AGENT_STATE_PREVIEW_DIAL_STARTED = 19;
+  AGENT_STATE_OUTBOUND_LOCKED = 20;
+  AGENT_STATE_WARM_AGENT_TRANSFER_STARTED_SOURCE = 21;
+  AGENT_STATE_WARM_AGENT_TRANSFER_STARTED_DESTINATION = 22;
+  AGENT_STATE_WARM_OUTBOUND_TRANSFER_STARTED = 23;
+  AGENT_STATE_WARM_OUTBOUND_TRANSFER_PEER_LOST = 24;
+  AGENT_STATE_PBX_POPUP_LOCKED = 25;
+  AGENT_STATE_PEERED_WITH_CALL_ON_HOLD = 26;
+  AGENT_STATE_CALLBACK_RESUMING = 27;
+  AGENT_STATE_GUI_BUSY = 28;
+  AGENT_STATE_INTERCOM = 29;
+  AGENT_STATE_INTERCOM_RINGING_SOURCE = 30;
+  AGENT_STATE_INTERCOM_RINGING_DESTINATION = 31;
+  AGENT_STATE_WARM_OUTBOUND_TRANSFER_OUTBOUND_LOST = 32;
+  AGENT_STATE_PREPARED_TO_PEER = 33;
+  AGENT_STATE_WARM_SKILL_TRANSFER_SOURCE_PENDING = 34;
+  // when the transfer has started
+  AGENT_STATE_CALLER_TRANSFER_STARTED = 35;
+  // when the transfer is running and the peer hangs up
+  AGENT_STATE_CALLER_TRANSFER_LOST_PEER = 36;
+  // when the transfer is running and the dest caller hangs up
+  AGENT_STATE_CALLER_TRANSFER_LOST_MERGED_CALLER = 37;
+
+  // interim state for cold outbound transfer
+  AGENT_STATE_COLD_OUTBOUND_TRANSFER_STARTED = 38;
+
+  // interim state for cold agent transfer
+  AGENT_STATE_COLD_AGENT_TRANSFER_STARTED = 39;
+}
