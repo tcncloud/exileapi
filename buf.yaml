@@ -6,5 +6,8 @@ lint:
 breaking:
   use:
     - FILE
+modules:
+  - path: .
+    name: buf.build/tcn/exileapi
 deps:
   - buf.build/googleapis/googleapis
