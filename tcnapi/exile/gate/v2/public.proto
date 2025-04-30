@@ -177,10 +177,6 @@ service GateService {
       body: "*"
     };
   }
-  /**
-   * Recording control operations
-   * These methods manage call recording functionality.
-   */
   // Start recording a call
   rpc StartCallRecording(StartCallRecordingRequest) returns (StartCallRecordingResponse) {
     option (google.api.http) = {
