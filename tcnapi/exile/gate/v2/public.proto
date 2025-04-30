@@ -24,6 +24,7 @@
 
 syntax = "proto3";
 
+// This package is the public API for the Exile Gate service.
 package tcnapi.exile.gate.v2;
 
 import "google/api/annotations.proto";
