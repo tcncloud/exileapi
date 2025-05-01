@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - master
-  create:
-    tags:
-      - v* # Trigger on tags starting with 'v', adjust if your tags differ
+    tags: ['v*.*.*']
 
 jobs:
   buf:      
