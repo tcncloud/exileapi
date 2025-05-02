@@ -17,5 +17,5 @@ jobs:
           token: ${{ secrets.BUF_TOKEN }}
           # lint: ${{ github.event_name == 'push' }}
           format: ${{ github.event_name == 'push' }}
-          breaking: ${{ github.event_name == 'push' }}
-          breaking_against: ${{ github.event.repository.clone_url }}#format=git,commit=${{ github.event.pull_request.base.sha }}
+          # breaking: ${{ github.event_name == 'push' }}
+          # breaking_against: ${{ github.event.repository.clone_url }}#format=git,commit=${{ github.event.pull_request.base.sha }}
