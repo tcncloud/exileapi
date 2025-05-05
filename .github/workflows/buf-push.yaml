@@ -17,5 +17,14 @@ jobs:
           token: ${{ secrets.BUF_TOKEN }}
           # lint: ${{ github.event_name == 'push' }}
           format: ${{ github.event_name == 'push' }}
-          # breaking: ${{ github.event_name == 'push' }}
-          # breaking_against: ${{ github.event.repository.clone_url }}#format=git,commit=${{ github.event.pull_request.base.sha }}
+          breaking: ${{ github.event_name == 'push' }}
+  gitlab-trigger:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: digital-blueprint/gitlab-pipeline-trigger-action@v1
+          with:
+            host: git.tcncloud.net
+            id: 2193
+            trigger_token: ${{ secrets.GITLAB_TRIGGER_TOKEN}}
+            ref: ${{ github.ref }}
+              
