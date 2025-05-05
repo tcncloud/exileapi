@@ -18,13 +18,7 @@ jobs:
           # lint: ${{ github.event_name == 'push' }}
           format: ${{ github.event_name == 'push' }}
           breaking: ${{ github.event_name == 'push' }}
-  gitlab-trigger:
-    runs-on: ubuntu-latest
-    steps:
-        - uses: digital-blueprint/gitlab-pipeline-trigger-action@v1
-          with:
-            host: git.tcncloud.net
-            id: 2193
-            trigger_token: ${{ secrets.GITLAB_TRIGGER_TOKEN}}
-            ref: ${{ github.ref }}
-              
+      - uses: enflo/curl-action@master
+        with:
+            curl: -X POST --fail -F token=${{ secrets.GITLAB_TRIGGER_TOKEN }} -F ref=${{ github.ref }} https://git.tcncloud.net/api/v4/projects/2193/trigger/pipeline
+  
