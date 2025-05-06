@@ -17,6 +17,8 @@ syntax = "proto3";
 // This package contains the core entities for the Exile system.
 package tcnapi.exile.core.v2;
 
+option go_package = "github.com/tcncloud/tcnapi/exile/core/v2;corev2";
+
 message Pool {
   string pool_id = 1;
   string description = 2;

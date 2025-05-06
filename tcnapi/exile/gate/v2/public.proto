@@ -33,6 +33,8 @@ import "google/protobuf/wrappers.proto";
 import "tcnapi/exile/core/v2/entities.proto";
 import "tcnapi/exile/gate/v2/entities.proto";
 
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v2;gatev2";
+
 /**
  * The GateService provides a set of RPCs for the Exile Gate service.
  * The service requires mTLS authentication for secure client-server communications.

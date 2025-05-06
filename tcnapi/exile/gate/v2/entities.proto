@@ -18,8 +18,8 @@ package tcnapi.exile.gate.v2;
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
-import "tcnapi/exile/core/v2/entities.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v2;gatev2";
 
 message ExileAgentCall {
   int64 agent_call_sid = 1;
