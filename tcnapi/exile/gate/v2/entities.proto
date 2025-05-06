@@ -165,9 +165,9 @@ message AgentEvent {
   int64 peer_call_id = 20;
   CallType peer_call_type = 21;
   map<string, int64> skills = 22;
-  map<string, int64> allSkills = 23;
-  int64 last_sip_code = 24;
-  string last_sip_message = 25;
+  map<string, int64> all_skills = 23;
+  int64 last_sip_code = 25;
+  string last_sip_message = 26;
 }
 
 message CallerEvent {
@@ -190,7 +190,7 @@ message CallerEvent {
   string config_folder = 17;
   string counter = 18;
   map<string, bool> skills = 19;
-  map<string, bool> allSkills = 20;
+  map<string, bool> all_skills = 20;
 }
 
 enum CallerState {
