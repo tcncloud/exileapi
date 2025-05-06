@@ -213,7 +213,7 @@ service GateService {
   // Add entries to a scrub list
   rpc AddScrubListEntries(AddScrubListEntriesRequest) returns (AddScrubListEntriesResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/scrublists/{scrublist_id}/add_entries"
+      post: "/tcnapi/exile/gate/v2/scrublists/{scrub_list_id}/add_entries"
       body: "*"
     };
   }
@@ -221,7 +221,7 @@ service GateService {
   // Update an existing scrub list entry
   rpc UpdateScrubListEntry(UpdateScrubListEntryRequest) returns (UpdateScrubListEntryResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/scrublists/{scrublist_id}/update_entry"
+      post: "/tcnapi/exile/gate/v2/scrublists/{scrub_list_id}/update_entry"
       body: "*"
     };
   }
@@ -229,7 +229,7 @@ service GateService {
   // Remove entries from a scrub list
   rpc RemoveScrubListEntries(RemoveScrubListEntriesRequest) returns (RemoveScrubListEntriesResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/scrublists/{scrublist_id}/remove_entries"
+      post: "/tcnapi/exile/gate/v2/scrublists/{scrub_list_id}/remove_entries"
       body: "*"
     };
   }
