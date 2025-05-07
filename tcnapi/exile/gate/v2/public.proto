@@ -107,13 +107,13 @@ service GateService {
    */
   // Get Agent status - retrieves the current state of an agent
   rpc GetAgentStatus(GetAgentStatusRequest) returns (GetAgentStatusResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/status"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/status"};
   }
 
   // Update Agent status - modifies an agent's availability state
   rpc UpdateAgentStatus(UpdateAgentStatusRequest) returns (UpdateAgentStatusResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/update_agent_status"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/update_agent_status"
       body: "*"
     };
   }
@@ -126,46 +126,46 @@ service GateService {
   // Agent management - creates or updates agent information
   rpc UpsertAgent(UpsertAgentRequest) returns (UpsertAgentResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/upsert_agent"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/upsert_agent"
       body: "*"
     };
   }
 
   // Get Agent by ID - retrieves agent details using internal ID
   rpc GetAgentById(GetAgentByIdRequest) returns (GetAgentByIdResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/users/{user_id}"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/users/{user_id=user_id}"};
   }
 
   // Get Agent by Partner ID - retrieves agent details using partner's ID system
   rpc GetAgentByPartnerId(GetAgentByPartnerIdRequest) returns (GetAgentByPartnerIdResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}"};
   }
 
   // Add Agent Call Response - adds a response to an agent call that will be sent back with the
   // telephony result,
   rpc AddAgentCallResponse(AddAgentCallResponseRequest) returns (AddAgentCallResponseResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/add_agent_call_response"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/add_agent_call_response"
       body: "*"
     };
   }
 
   // List Hunt Group Pause Codes - lists the pause codes defined for a hunt group
   rpc ListHuntGroupPauseCodes(ListHuntGroupPauseCodesRequest) returns (ListHuntGroupPauseCodesResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/list_hunt_group_pause_codes"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/list_hunt_group_pause_codes"};
   }
 
   // Put Call On Simple Hold - puts a call on simple hold
   rpc PutCallOnSimpleHold(PutCallOnSimpleHoldRequest) returns (PutCallOnSimpleHoldResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/put_call_on_simple_hold"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/put_call_on_simple_hold"
       body: "*"
     };
   }
 
   rpc TakeCallOffSimpleHold(TakeCallOffSimpleHoldRequest) returns (TakeCallOffSimpleHoldResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/take_call_off_simple_hold"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/take_call_off_simple_hold"
       body: "*"
     };
   }
@@ -176,14 +176,14 @@ service GateService {
   // Dial a phone number - initiates an outbound call
   rpc Dial(DialRequest) returns (DialResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/dial"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/dial"
       body: "*"
     };
   }
   // Start recording a call
   rpc StartCallRecording(StartCallRecordingRequest) returns (StartCallRecordingResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/start_call_recording"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/start_call_recording"
       body: "*"
     };
   }
@@ -191,14 +191,14 @@ service GateService {
   // Stop recording a call
   rpc StopCallRecording(StopCallRecordingRequest) returns (StopCallRecordingResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/stop_call_recording"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/stop_call_recording"
       body: "*"
     };
   }
 
   // Get recording status - checks if a call is currently being recorded
   rpc GetRecordingStatus(GetRecordingStatusRequest) returns (GetRecordingStatusResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/get_recording_status"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/get_recording_status"};
   }
 
   /**
