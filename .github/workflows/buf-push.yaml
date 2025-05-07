@@ -20,5 +20,5 @@ jobs:
           breaking: ${{ github.event_name == 'push' }}
       - uses: enflo/curl-action@master
         with:
-            curl: -X POST --fail -F token=${{ secrets.GITLAB_TRIGGER_TOKEN }} -F ref=master --form "variables[REMOTE_REF]=${{ github.ref }}" https://git.tcncloud.net/api/v4/projects/2193/trigger/pipeline
+            curl: -X POST --fail -F token=${{ secrets.GITLAB_TRIGGER_TOKEN }} -F ref=master --form variables[REMOTE_REF]=${{ github.ref }} https://git.tcncloud.net/api/v4/projects/2193/trigger/pipeline
   
