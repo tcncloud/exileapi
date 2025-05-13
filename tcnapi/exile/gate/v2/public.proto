@@ -250,15 +250,21 @@ service GateService {
     option (google.api.http) = {get: "/tcnapi/exile/gate/v2/skillgroups"};
   }
   // Assign a skill to an agent
-  // can be for this session, or permanent
   rpc AssignAgentSkill(AssignAgentSkillRequest) returns (AssignAgentSkillResponse) {
     option (google.api.http) = {
       post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/assign_skill"
       body: "*"
     };
   }
+  // Unassign a skill from an agent
+  rpc UnassignAgentSkill(UnassignAgentSkillRequest) returns (UnassignAgentSkillResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/unassign_skill"
+      body: "*"
+    };
+  }
   // Assign all the skills in a skill group to an agent
-  // can be for this session, or permanent
+  // can override the current skills for the session, or add to them
   rpc AssignAgentSkillGroup(AssignAgentSkillGroupRequest) returns (AssignAgentSkillGroupResponse) {
     option (google.api.http) = {
       post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/assign_skillgroup"
@@ -943,14 +949,17 @@ message ListSkillGroupsResponse {
 message AssignAgentSkillRequest {
   string partner_agent_id = 1;
   string skill_id = 2;
-  // if true this assignment will persist across sessions
-  bool persistent = 3;
 }
 message AssignAgentSkillResponse {}
+message UnassignAgentSkillRequest {
+  string partner_agent_id = 1;
+  string skill_id = 2;
+}
+message UnassignAgentSkillResponse {}
 message AssignAgentSkillGroupRequest {
   string partner_agent_id = 1;
   string skill_group_id = 2;
-  // if true this assignment will persist across sessions
-  bool persistent = 3;
+  // if true we will replace the current session skills with only supply the ones from this group
+  bool override = 3;
 }
 message AssignAgentSkillGroupResponse {}
