@@ -244,6 +244,25 @@ service GateService {
       body: "*"
     };
   }
+
+  /**
+   * Voice recording retrieval operations
+   */
+  // Search for voice recordings
+  rpc SearchVoiceRecordings(SearchVoiceRecordingsRequest) returns (SearchVoiceRecordingsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/search_voice_recordings"
+      body: "*"
+    };
+  }
+
+  // Get a voice recording download link
+  rpc GetVoiceRecordingDownloadLink(GetVoiceRecordingDownloadLinkRequest) returns (GetVoiceRecordingDownloadLinkResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/get_voice_recording_download_link"
+      body: "*"
+    };
+  }
 }
 
 /**
