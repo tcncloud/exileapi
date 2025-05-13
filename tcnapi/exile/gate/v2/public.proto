@@ -28,6 +28,7 @@ syntax = "proto3";
 package tcnapi.exile.gate.v2;
 
 import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "tcnapi/exile/core/v2/entities.proto";
@@ -893,4 +894,59 @@ message Agent {
   string last_name = 4; // Agent's last name
   string username = 5; // Agent's username
   string partner_agent_id = 6; // ID of the agent in the partner's system
+}
+
+
+/**
+ * Request message for searching voice recordings.
+ */
+ message SearchVoiceRecordingsRequest {
+  string filter = 4; // Optional. AIP-160 filter expression for search results.
+  string order_by = 5; // Optional. Comma-separated list of fields to order by, followed by `asc` or `desc` postfix. Case insensitive.
+}
+
+/**
+ * Response message for searching voice recordings.
+ */
+message SearchVoiceRecordingsResponse {
+  repeated Recording recordings = 1;
+}
+
+/**
+ * Message representing a voice recording.
+ */
+message Recording {
+  string name = 1;  // The fully qualified resource name of the recording. Format: "orgs/{org}/regions/{region}/zones/{zone}/recordings/{recording}"
+  int64 call_sid = 2; // The unique identifier of the call recorded.
+  CallType call_type = 3; // The type of call recorded.
+  google.protobuf.Duration duration = 4; // The duration of the recording.
+  string agent_phone = 5; // The phone number of the agent.
+  string client_phone = 6; // The phone number of the client.
+  string campaign = 7; // The name of the campaign.
+  RecordingType recording_type = 8; // The type of the recording.
+  google.protobuf.Timestamp start_time = 9; // The start time of the recording.
+  repeated string agent_user_ids = 10; // The user IDs of participating agents.
+}
+
+/**
+ * Enumeration of recording types.
+ */
+enum RecordingType {
+  RECORDING_TYPE_TCN = 0;
+  RECORDING_TYPE_EXTERNAL = 1;
+  RECORDING_TYPE_VOICEMAIL = 2;
+}
+
+/**
+ * Request message for getting a voice recording download link.
+ */
+message GetVoiceRecordingDownloadLinkRequest {
+  string recording_id = 1; // The ID of the recording to get the download link for
+}
+
+/**
+ * Response message for getting a voice recording download link.
+ */
+message GetVoiceRecordingDownloadLinkResponse {
+  string download_link = 1; // The download link for the recording
 }
