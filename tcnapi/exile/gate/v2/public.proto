@@ -901,8 +901,8 @@ message Agent {
  * Request message for searching voice recordings.
  */
  message SearchVoiceRecordingsRequest {
-  string filter = 4; // Optional. AIP-160 filter expression for search results.
-  string order_by = 5; // Optional. Comma-separated list of fields to order by, followed by `asc` or `desc` postfix. Case insensitive.
+  string filter = 1; // Optional. AIP-160 filter expression for search results.
+  string order_by = 2; // Optional. Comma-separated list of fields to order by, followed by `asc` or `desc` postfix. Case insensitive.
 }
 
 /**
@@ -932,9 +932,9 @@ message Recording {
  * Enumeration of recording types.
  */
 enum RecordingType {
-  RECORDING_TYPE_TCN = 0;
-  RECORDING_TYPE_EXTERNAL = 1;
-  RECORDING_TYPE_VOICEMAIL = 2;
+  RECORDING_TYPE_TCN = 1;
+  RECORDING_TYPE_EXTERNAL = 2;
+  RECORDING_TYPE_VOICEMAIL = 3;
 }
 
 /**
