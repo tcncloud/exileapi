@@ -233,7 +233,38 @@ service GateService {
       body: "*"
     };
   }
-
+  /**
+   * Skill management operations
+   * These methods handle skill management for agents
+   */
+  // List all available skills in an organization
+  rpc ListSkills(ListSkillsRequest) returns (ListSkillsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/skills"};
+  }
+  // List all skills assigned to an agent, and their proficiency
+  rpc ListAgentSkills(ListAgentSkillsRequest) returns (ListAgentSkillsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/skills"};
+  }
+  // List all skill groups in an organization, and their associated skills
+  rpc ListSkillGroups(ListSkillGroupsRequest) returns (ListSkillGroupsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/skillgroups"};
+  }
+  // Assign a skill to an agent
+  // can be for this session, or permanent
+  rpc AssignAgentSkill(AssignAgentSkillRequest) returns (AssignAgentSkillResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/assign_skill"
+      body: "*"
+    };
+  }
+  // Assign all the skills in a skill group to an agent
+  // can be for this session, or permanent
+  rpc AssignAgentSkillGroup(AssignAgentSkillGroupRequest) returns (AssignAgentSkillGroupResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/assign_skillgroup"
+      body: "*"
+    };
+  }
   /**
    * Logging operations
    */
@@ -894,3 +925,32 @@ message Agent {
   string username = 5; // Agent's username
   string partner_agent_id = 6; // ID of the agent in the partner's system
 }
+
+message ListSkillsRequest {}
+message ListSkillsResponse {
+  repeated Skill skills = 1;
+}
+message ListAgentSkillsRequest {
+  string partner_agent_id = 1;
+}
+message ListAgentSkillsResponse {
+  repeated Skill skills = 1;
+}
+message ListSkillGroupsRequest {}
+message ListSkillGroupsResponse {
+  repeated SkillGroup skill_groups = 1;
+}
+message AssignAgentSkillRequest {
+  string partner_agent_id = 1;
+  string skill_id = 2;
+  // if true this assignment will persist across sessions
+  bool persistent = 3;
+}
+message AssignAgentSkillResponse {}
+message AssignAgentSkillGroupRequest {
+  string partner_agent_id = 1;
+  string skill_group_id = 2;
+  // if true this assignment will persist across sessions
+  bool persistent = 3;
+}
+message AssignAgentSkillGroupResponse {}
