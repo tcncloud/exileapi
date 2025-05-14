@@ -951,9 +951,9 @@ message Recording {
  * Enumeration of recording types.
  */
 enum RecordingType {
-  RECORDING_TYPE_TCN = 1;
-  RECORDING_TYPE_EXTERNAL = 2;
-  RECORDING_TYPE_VOICEMAIL = 3;
+  RECORDING_TYPE_TCN = 0;
+  RECORDING_TYPE_EXTERNAL = 1;
+  RECORDING_TYPE_VOICEMAIL = 2;
 }
 
 /**
