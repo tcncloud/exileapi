@@ -249,7 +249,7 @@ service GateService {
    * Voice recording retrieval operations
    */
   // Search for voice recordings
-  rpc SearchVoiceRecordings(SearchVoiceRecordingsRequest) returns (SearchVoiceRecordingsResponse) {
+  rpc SearchVoiceRecordings(SearchVoiceRecordingsRequest) returns (stream SearchVoiceRecordingsResponse) {
     option (google.api.http) = {
       post: "/tcnapi/exile/gate/v2/search_voice_recordings"
       body: "*"
