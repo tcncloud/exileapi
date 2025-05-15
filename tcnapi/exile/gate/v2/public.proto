@@ -28,6 +28,7 @@ syntax = "proto3";
 package tcnapi.exile.gate.v2;
 
 import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "tcnapi/exile/core/v2/entities.proto";
@@ -240,6 +241,33 @@ service GateService {
   rpc Log(LogRequest) returns (LogResponse) {
     option (google.api.http) = {
       post: "/tcnapi/exile/gate/v2/log"
+      body: "*"
+    };
+  }
+
+  /**
+   * Voice recording retrieval operations
+   */
+  // Search for voice recordings
+  rpc SearchVoiceRecordings(SearchVoiceRecordingsRequest) returns (stream SearchVoiceRecordingsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/search_voice_recordings"
+      body: "*"
+    };
+  }
+
+  // Get a voice recording download link
+  rpc GetVoiceRecordingDownloadLink(GetVoiceRecordingDownloadLinkRequest) returns (GetVoiceRecordingDownloadLinkResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/get_voice_recording_download_link"
+      body: "*"
+    };
+  }
+
+  // Get a list of allowed searchable fields
+  rpc ListSearchableRecordingFields(ListSearchableRecordingFieldsRequest) returns (ListSearchableRecordingFieldsResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/list_searchable_recording_fields"
       body: "*"
     };
   }
@@ -893,4 +921,83 @@ message Agent {
   string last_name = 4; // Agent's last name
   string username = 5; // Agent's username
   string partner_agent_id = 6; // ID of the agent in the partner's system
+}
+
+/**
+ * Request message for searching voice recordings.
+ */
+ message SearchVoiceRecordingsRequest {
+  repeated SearchOption search_options = 1; // Optional. Structured search options for building the filter.
+}
+
+/**
+ * Response message for searching voice recordings.
+ */
+message SearchVoiceRecordingsResponse {
+  repeated Recording recordings = 1;
+}
+
+/**
+ * Message representing a voice recording.
+ */
+message Recording {
+  string name = 1;  // The fully qualified resource name of the recording. Format: "orgs/{org}/regions/{region}/zones/{zone}/recordings/{recording}"
+  int64 call_sid = 2; // The unique identifier of the call recorded.
+  CallType call_type = 3; // The type of call recorded.
+  google.protobuf.Duration duration = 4; // The duration of the recording.
+  string agent_phone = 5; // The phone number of the agent.
+  string client_phone = 6; // The phone number of the client.
+  string campaign = 7; // The name of the campaign.
+  RecordingType recording_type = 8; // The type of the recording.
+  google.protobuf.Timestamp start_time = 9; // The start time of the recording.
+  repeated string partner_agent_ids = 10; // The user IDs of participating agents.
+}
+
+/**
+ * Enumeration of recording types.
+ */
+enum RecordingType {
+  RECORDING_TYPE_TCN = 0;
+  RECORDING_TYPE_EXTERNAL = 1;
+  RECORDING_TYPE_VOICEMAIL = 2;
+}
+
+/**
+ * Request message for getting a voice recording download link.
+ */
+message GetVoiceRecordingDownloadLinkRequest {
+  string recording_id = 1; // The ID of the recording to get the download link for
+}
+
+/**
+ * Response message for getting a voice recording download link.
+ */
+message GetVoiceRecordingDownloadLinkResponse {
+  string download_link = 1; // The download link for the recording
+}
+
+message SearchOption {
+  string field = 1; // The field to search on (see above for supported fields).
+  Operator operator = 2;  // The operator to use for comparison.
+  string value = 3;  // The value to compare against.
+}
+
+// Supported operators for search options.
+enum Operator {
+  OPERATOR_UNSPECIFIED = 0;
+  EQUAL = 1;        // =
+  CONTAINS = 2;     // :
+  NOT_EQUAL = 3;    // !=
+}
+
+/** 
+ * Request message for listing searchable recording fields.
+ */
+message ListSearchableRecordingFieldsRequest {}
+
+/**
+ * Response message for listing searchable recording fields.
+ */
+message ListSearchableRecordingFieldsResponse {
+  repeated string fields = 1;
 }
