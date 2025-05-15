@@ -285,12 +285,3 @@ message Skill {
   // will not be set if the skill is not assigned to an agent
   int64 proficiency = 4;
 }
-
-message SkillGroup {
-  // the id to pass back to AssignSkillGroup calls to give this skill group to an agent
-  string skill_group_id = 1;
-  string name = 2;
-  string description = 3;
-  // all the skills in this group
-  repeated Skill skills = 4;
-}
