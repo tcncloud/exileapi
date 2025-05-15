@@ -928,9 +928,6 @@ message Agent {
  */
  message SearchVoiceRecordingsRequest {
   repeated SearchOption search_options = 1; // Optional. Structured search options for building the filter.
-  // Optional. Comma-separated list of fields to order by, each optionally followed by 'asc' or 'desc'.
-  // Example: "start_time desc, agent_phone asc"
-  string order_by = 2;
 }
 
 /**
