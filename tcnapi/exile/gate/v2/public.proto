@@ -234,7 +234,32 @@ service GateService {
       body: "*"
     };
   }
-
+  /**
+   * Skill management operations
+   * These methods handle skill management for agents
+   */
+  // List all available skills in an organization
+  rpc ListSkills(ListSkillsRequest) returns (ListSkillsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/skills"};
+  }
+  // List all skills assigned to an agent, and their proficiency
+  rpc ListAgentSkills(ListAgentSkillsRequest) returns (ListAgentSkillsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/skills"};
+  }
+  // Assign a skill to an agent
+  rpc AssignAgentSkill(AssignAgentSkillRequest) returns (AssignAgentSkillResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/assign_skill"
+      body: "*"
+    };
+  }
+  // Unassign a skill from an agent
+  rpc UnassignAgentSkill(UnassignAgentSkillRequest) returns (UnassignAgentSkillResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/unassign_skill"
+      body: "*"
+    };
+  }
   /**
    * Logging operations
    */
@@ -923,10 +948,31 @@ message Agent {
   string partner_agent_id = 6; // ID of the agent in the partner's system
 }
 
+message ListSkillsRequest {}
+message ListSkillsResponse {
+  repeated Skill skills = 1;
+}
+message ListAgentSkillsRequest {
+  string partner_agent_id = 1;
+}
+message ListAgentSkillsResponse {
+  repeated Skill skills = 1;
+}
+message AssignAgentSkillRequest {
+  string partner_agent_id = 1;
+  string skill_id = 2;
+}
+message AssignAgentSkillResponse {}
+message UnassignAgentSkillRequest {
+  string partner_agent_id = 1;
+  string skill_id = 2;
+}
+message UnassignAgentSkillResponse {}
+
 /**
  * Request message for searching voice recordings.
  */
- message SearchVoiceRecordingsRequest {
+message SearchVoiceRecordingsRequest {
   repeated SearchOption search_options = 1; // Optional. Structured search options for building the filter.
 }
 
@@ -941,7 +987,7 @@ message SearchVoiceRecordingsResponse {
  * Message representing a voice recording.
  */
 message Recording {
-  string name = 1;  // The fully qualified resource name of the recording. Format: "orgs/{org}/regions/{region}/zones/{zone}/recordings/{recording}"
+  string name = 1; // The fully qualified resource name of the recording. Format: "orgs/{org}/regions/{region}/zones/{zone}/recordings/{recording}"
   int64 call_sid = 2; // The unique identifier of the call recorded.
   CallType call_type = 3; // The type of call recorded.
   google.protobuf.Duration duration = 4; // The duration of the recording.
@@ -978,19 +1024,19 @@ message GetVoiceRecordingDownloadLinkResponse {
 
 message SearchOption {
   string field = 1; // The field to search on (see above for supported fields).
-  Operator operator = 2;  // The operator to use for comparison.
-  string value = 3;  // The value to compare against.
+  Operator operator = 2; // The operator to use for comparison.
+  string value = 3; // The value to compare against.
 }
 
 // Supported operators for search options.
 enum Operator {
   OPERATOR_UNSPECIFIED = 0;
-  EQUAL = 1;        // =
-  CONTAINS = 2;     // :
-  NOT_EQUAL = 3;    // !=
+  EQUAL = 1; // =
+  CONTAINS = 2; // :
+  NOT_EQUAL = 3; // !=
 }
 
-/** 
+/**
  * Request message for listing searchable recording fields.
  */
 message ListSearchableRecordingFieldsRequest {}
