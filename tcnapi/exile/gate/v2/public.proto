@@ -961,6 +961,8 @@ message ListAgentSkillsResponse {
 message AssignAgentSkillRequest {
   string partner_agent_id = 1;
   string skill_id = 2;
+  // the proficiency level to assign to the skill
+  int64 proficiency = 3;
 }
 message AssignAgentSkillResponse {}
 message UnassignAgentSkillRequest {
