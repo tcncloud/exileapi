@@ -181,6 +181,9 @@ service GateService {
       body: "*"
     };
   }
+  rpc ListNCLRulesetNames(ListNCLRulesetNamesRequest) returns (ListNCLRulesetNamesResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/list_ncl_ruleset_names"};
+  }
   // Start recording a call
   rpc StartCallRecording(StartCallRecordingRequest) returns (StartCallRecordingResponse) {
     option (google.api.http) = {
@@ -842,6 +845,9 @@ message DialRequest {
   google.protobuf.StringValue caller_id = 3; // Caller ID to display
   google.protobuf.StringValue pool_id = 4; // Pool ID for the call
   google.protobuf.StringValue record_id = 5; // Record ID for the call
+  // Ruleset name for the call. If provided this will override the ruleset in the huntgroup settings.
+  google.protobuf.StringValue ruleset_name = 6;
+  bool skip_compliance_checks = 7; // if true the call will ignore all call compliance rules.
 }
 
 /**
@@ -861,6 +867,15 @@ message DialResponse {
   // will be removed in a future version.
   string caller_sid = 9 [deprecated = true];
 }
+
+message ListNCLRulesetNamesRequest {
+  string partner_agent_id = 1;
+}
+message ListNCLRulesetNamesResponse {
+  repeated string ruleset_names = 1;
+}
+
+
 
 /**
  * Request message for retrieving agent status.
