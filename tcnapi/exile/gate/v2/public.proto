@@ -869,7 +869,6 @@ message DialResponse {
 }
 
 message ListNCLRulesetNamesRequest {
-  string partner_agent_id = 1;
 }
 message ListNCLRulesetNamesResponse {
   repeated string ruleset_names = 1;
