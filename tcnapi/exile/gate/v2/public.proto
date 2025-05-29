@@ -182,7 +182,7 @@ service GateService {
     };
   }
   rpc ListNCLRulesetNames(ListNCLRulesetNamesRequest) returns (ListNCLRulesetNamesResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/list_ncl_ruleset_names"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/list_ncl_ruleset_names"};
   }
   // Start recording a call
   rpc StartCallRecording(StartCallRecordingRequest) returns (StartCallRecordingResponse) {
