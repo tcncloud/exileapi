@@ -868,13 +868,10 @@ message DialResponse {
   string caller_sid = 9 [deprecated = true];
 }
 
-message ListNCLRulesetNamesRequest {
-}
+message ListNCLRulesetNamesRequest {}
 message ListNCLRulesetNamesResponse {
   repeated string ruleset_names = 1;
 }
-
-
 
 /**
  * Request message for retrieving agent status.
