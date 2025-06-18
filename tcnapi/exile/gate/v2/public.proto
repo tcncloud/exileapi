@@ -352,6 +352,7 @@ message StreamJobsResponse {
     InfoRequest info = 100; // Request for system information
     SeppukuRequest shutdown = 101; // Request to shut down the client
     LoggingRequest logging = 102; // Request related to logging
+    DiagnosticsRequest diagnostics = 103; // Request for diagnostics
   }
 
   /**
@@ -465,6 +466,12 @@ message StreamJobsResponse {
       }
     }
   }
+
+  /**
+   * Request message for diagnostics request.
+   * Empty response indicates successful diagnostics.
+   */
+  message DiagnosticsRequest {}
 }
 
 /**
@@ -490,6 +497,7 @@ message SubmitJobResultsRequest {
     InfoResult info_result = 22; // System information result
     SeppukuResult shutdown_result = 23; // Result of shutdown request
     LoggingResult logging_result = 24; // Result of logging request
+    DiagnosticsResult diagnostics_result = 25; // Result of diagnostics request
   }
 
   /**
@@ -571,7 +579,187 @@ message SubmitJobResultsRequest {
   }
 
   /**
-   * Result message for shutdown request.
+   * Result message for diagnostics request.
+   * Contains comprehensive system information about the running application.
+   */
+  message DiagnosticsResult {
+    google.protobuf.Timestamp timestamp = 1; // Timestamp when diagnostics were collected
+    string hostname = 2; // System hostname
+    OperatingSystem operating_system = 3; // Operating system information
+    JavaRuntime java_runtime = 4; // Java runtime information
+    Hardware hardware = 5; // Hardware information
+    Memory memory = 6; // Memory usage information
+    repeated Storage storage = 7; // Storage devices and partitions
+    Container container = 8; // Container information (if running in container)
+    EnvironmentVariables environment_variables = 9; // Environment variables
+    SystemProperties system_properties = 10; // System properties
+    message OperatingSystem {
+      string name = 1; // OS name (e.g., "Linux", "Windows")
+      string version = 2; // OS version
+      string architecture = 3; // System architecture (e.g., "aarch64", "x86_64")
+      string manufacturer = 4; // OS manufacturer
+      int32 available_processors = 5; // Number of available processors
+      int64 system_uptime = 6; // System uptime in seconds
+      double system_load_average = 7; // System load average
+      int64 total_physical_memory = 8; // Total physical memory in bytes
+      int64 available_physical_memory = 9; // Available physical memory in bytes
+      int64 total_swap_space = 10; // Total swap space in bytes (-1 if not available)
+      int64 available_swap_space = 11; // Available swap space in bytes (-1 if not available)
+    }
+    message JavaRuntime {
+      string version = 1; // Java version
+      string vendor = 2; // Java vendor
+      string runtime_name = 3; // Runtime name
+      string vm_name = 4; // VM name
+      string vm_version = 5; // VM version
+      string vm_vendor = 6; // VM vendor
+      string specification_name = 7; // Specification name
+      string specification_version = 8; // Specification version
+      string class_path = 9; // Java class path
+      string library_path = 10; // Java library path
+      repeated string input_arguments = 11; // JVM input arguments
+      int64 uptime = 12; // JVM uptime in milliseconds
+      int64 start_time = 13; // JVM start time in milliseconds since epoch
+      string management_spec_version = 14; // Management specification version
+    }
+    message Hardware {
+      string model = 1; // Hardware model
+      string manufacturer = 2; // Hardware manufacturer
+      string serial_number = 3; // Hardware serial number
+      string uuid = 4; // Hardware UUID
+      Processor processor = 5; // Processor information
+    }
+    message Processor {
+      string name = 1; // Processor name
+      string identifier = 2; // Processor identifier
+      string architecture = 3; // Processor architecture
+      int32 physical_processor_count = 4; // Number of physical processors
+      int32 logical_processor_count = 5; // Number of logical processors
+      int64 max_frequency = 6; // Maximum frequency in Hz (-1 if unknown)
+      bool cpu_64bit = 7; // Whether the CPU is 64-bit
+    }
+    message Memory {
+      int64 heap_memory_used = 1; // Used heap memory in bytes
+      int64 heap_memory_max = 2; // Maximum heap memory in bytes
+      int64 heap_memory_committed = 3; // Committed heap memory in bytes
+      int64 non_heap_memory_used = 4; // Used non-heap memory in bytes
+      int64 non_heap_memory_max = 5; // Maximum non-heap memory in bytes (-1 if unlimited)
+      int64 non_heap_memory_committed = 6; // Committed non-heap memory in bytes
+      repeated MemoryPool memory_pools = 7; // Memory pool information
+    }
+    message MemoryPool {
+      string name = 1; // Memory pool name
+      string type = 2; // Memory pool type (e.g., "Heap memory", "Non-heap memory")
+      int64 used = 3; // Used memory in bytes
+      int64 max = 4; // Maximum memory in bytes (-1 if unlimited)
+      int64 committed = 5; // Committed memory in bytes
+    }
+    message Storage {
+      string name = 1; // Storage device name
+      string type = 2; // Storage device type (e.g., "disk")
+      string model = 3; // Storage device model
+      string serial_number = 4; // Storage device serial number
+      int64 size = 5; // Storage device size in bytes
+    }
+    message Container {
+      bool is_container = 1; // Whether running in a container
+      string container_type = 2; // Container type (e.g., "docker")
+      string container_id = 3; // Container ID
+      string container_name = 4; // Container name
+      string image_name = 5; // Container image name
+      map<string, string> resource_limits = 6; // Resource limits imposed by the container
+    }
+    message EnvironmentVariables {
+      string language = 1; // LANGUAGE
+      string path = 2; // PATH
+      string hostname = 3; // HOSTNAME
+      string lc_all = 4; // LC_ALL
+      string java_home = 5; // JAVA_HOME
+      string java_version = 6; // JAVA_VERSION
+      string lang = 7; // LANG
+      string home = 8; // HOME
+    }
+    message SystemProperties {
+      // Java Specification
+      string java_specification_version = 1; // java.specification.version
+      string java_specification_vendor = 2; // java.specification.vendor
+      string java_specification_name = 3; // java.specification.name
+      string java_specification_maintenance_version = 4; // java.specification.maintenance.version
+      
+      // Java Version Info
+      string java_version = 5; // java.version
+      string java_version_date = 6; // java.version.date
+      string java_vendor = 7; // java.vendor
+      string java_vendor_version = 8; // java.vendor.version
+      string java_vendor_url = 9; // java.vendor.url
+      string java_vendor_url_bug = 10; // java.vendor.url.bug
+      
+      // Java Runtime
+      string java_runtime_name = 11; // java.runtime.name
+      string java_runtime_version = 12; // java.runtime.version
+      string java_home = 13; // java.home
+      string java_class_path = 14; // java.class.path
+      string java_library_path = 15; // java.library.path
+      string java_class_version = 16; // java.class.version
+      
+      // Java VM
+      string java_vm_name = 17; // java.vm.name
+      string java_vm_version = 18; // java.vm.version
+      string java_vm_vendor = 19; // java.vm.vendor
+      string java_vm_info = 20; // java.vm.info
+      string java_vm_specification_version = 21; // java.vm.specification.version
+      string java_vm_specification_vendor = 22; // java.vm.specification.vendor
+      string java_vm_specification_name = 23; // java.vm.specification.name
+      string java_vm_compressed_oops_mode = 24; // java.vm.compressedOopsMode
+      
+      // Operating System
+      string os_name = 25; // os.name
+      string os_version = 26; // os.version
+      string os_arch = 27; // os.arch
+      
+      // User Info
+      string user_name = 28; // user.name
+      string user_home = 29; // user.home
+      string user_dir = 30; // user.dir
+      string user_timezone = 31; // user.timezone
+      string user_country = 32; // user.country
+      string user_language = 33; // user.language
+      
+      // File System
+      string file_separator = 34; // file.separator
+      string path_separator = 35; // path.separator
+      string line_separator = 36; // line.separator
+      string file_encoding = 37; // file.encoding
+      string native_encoding = 38; // native.encoding
+      
+      // Sun/Oracle Specific
+      string sun_jnu_encoding = 39; // sun.jnu.encoding
+      string sun_arch_data_model = 40; // sun.arch.data.model
+      string sun_java_launcher = 41; // sun.java.launcher
+      string sun_boot_library_path = 42; // sun.boot.library.path
+      string sun_java_command = 43; // sun.java.command
+      string sun_cpu_endian = 44; // sun.cpu.endian
+      string sun_management_compiler = 45; // sun.management.compiler
+      string sun_io_unicode_encoding = 46; // sun.io.unicode.encoding
+      
+      // JDK/Debug
+      string jdk_debug = 47; // jdk.debug
+      string java_io_tmpdir = 48; // java.io.tmpdir
+      
+      // Application Specific
+      string env = 49; // env (custom property)
+      string micronaut_classloader_logging = 50; // micronaut.classloader.logging
+      
+      // Third Party Libraries
+      string io_netty_allocator_max_order = 51; // io.netty.allocator.maxOrder
+      string io_netty_process_id = 52; // io.netty.processId
+      string io_netty_machine_id = 53; // io.netty.machineId
+      string com_zaxxer_hikari_pool_number = 54; // com.zaxxer.hikari.pool_number
+    }
+  }
+
+  /**
+   * Result message for shutting down the client.
    * Empty response indicates successful shutdown initiation.
    */
   message SeppukuResult {}
