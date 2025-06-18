@@ -685,7 +685,7 @@ message SubmitJobResultsRequest {
       string java_specification_vendor = 2; // java.specification.vendor
       string java_specification_name = 3; // java.specification.name
       string java_specification_maintenance_version = 4; // java.specification.maintenance.version
-      
+
       // Java Version Info
       string java_version = 5; // java.version
       string java_version_date = 6; // java.version.date
@@ -693,7 +693,7 @@ message SubmitJobResultsRequest {
       string java_vendor_version = 8; // java.vendor.version
       string java_vendor_url = 9; // java.vendor.url
       string java_vendor_url_bug = 10; // java.vendor.url.bug
-      
+
       // Java Runtime
       string java_runtime_name = 11; // java.runtime.name
       string java_runtime_version = 12; // java.runtime.version
@@ -701,7 +701,7 @@ message SubmitJobResultsRequest {
       string java_class_path = 14; // java.class.path
       string java_library_path = 15; // java.library.path
       string java_class_version = 16; // java.class.version
-      
+
       // Java VM
       string java_vm_name = 17; // java.vm.name
       string java_vm_version = 18; // java.vm.version
@@ -711,12 +711,12 @@ message SubmitJobResultsRequest {
       string java_vm_specification_vendor = 22; // java.vm.specification.vendor
       string java_vm_specification_name = 23; // java.vm.specification.name
       string java_vm_compressed_oops_mode = 24; // java.vm.compressedOopsMode
-      
+
       // Operating System
       string os_name = 25; // os.name
       string os_version = 26; // os.version
       string os_arch = 27; // os.arch
-      
+
       // User Info
       string user_name = 28; // user.name
       string user_home = 29; // user.home
@@ -724,14 +724,14 @@ message SubmitJobResultsRequest {
       string user_timezone = 31; // user.timezone
       string user_country = 32; // user.country
       string user_language = 33; // user.language
-      
+
       // File System
       string file_separator = 34; // file.separator
       string path_separator = 35; // path.separator
       string line_separator = 36; // line.separator
       string file_encoding = 37; // file.encoding
       string native_encoding = 38; // native.encoding
-      
+
       // Sun/Oracle Specific
       string sun_jnu_encoding = 39; // sun.jnu.encoding
       string sun_arch_data_model = 40; // sun.arch.data.model
@@ -741,15 +741,15 @@ message SubmitJobResultsRequest {
       string sun_cpu_endian = 44; // sun.cpu.endian
       string sun_management_compiler = 45; // sun.management.compiler
       string sun_io_unicode_encoding = 46; // sun.io.unicode.encoding
-      
+
       // JDK/Debug
       string jdk_debug = 47; // jdk.debug
       string java_io_tmpdir = 48; // java.io.tmpdir
-      
+
       // Application Specific
       string env = 49; // env (custom property)
       string micronaut_classloader_logging = 50; // micronaut.classloader.logging
-      
+
       // Third Party Libraries
       string io_netty_allocator_max_order = 51; // io.netty.allocator.maxOrder
       string io_netty_process_id = 52; // io.netty.processId
