@@ -590,7 +590,6 @@ message SubmitJobResultsRequest {
     Hardware hardware = 5; // Hardware information
     Memory memory = 6; // Memory usage information
     repeated Storage storage = 7; // Storage devices and partitions
-    repeated NetworkInterface network = 8; // Network interfaces
     Container container = 9; // Container information (if running in container)
     EnvironmentVariables environment_variables = 10; // Environment variables
     SystemProperties system_properties = 11; // System properties
