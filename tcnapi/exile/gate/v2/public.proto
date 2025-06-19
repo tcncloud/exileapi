@@ -593,6 +593,8 @@ message SubmitJobResultsRequest {
     Container container = 8; // Container information (if running in container)
     EnvironmentVariables environment_variables = 9; // Environment variables
     SystemProperties system_properties = 10; // System properties
+    repeated HikariPoolMetrics hikari_pool_metrics = 11; // Hikari pool metrics
+    ConfigDetails config_details = 12; // Config details
     message OperatingSystem {
       string name = 1; // OS name (e.g., "Linux", "Windows")
       string version = 2; // OS version
