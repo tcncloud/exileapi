@@ -756,6 +756,37 @@ message SubmitJobResultsRequest {
       string io_netty_machine_id = 53; // io.netty.machineId
       string com_zaxxer_hikari_pool_number = 54; // com.zaxxer.hikari.pool_number
     }
+    message HikariPoolMetrics {
+      string pool_name = 1; // Name of the connection pool
+      int32 active_connections = 2; // Number of active connections in the pool
+      int32 idle_connections = 3; // Number of idle connections in the pool
+      int32 total_connections = 4; // Total number of connections in the pool
+      int32 threads_awaiting_connection = 5; // Number of threads waiting for a connection
+
+      // Pool configuration
+      PoolConfig pool_config = 6; // Connection pool configuration if available
+
+      // Extended metrics from Dropwizard if available
+      map<string, string> extended_metrics = 7; // Additional metrics from Dropwizard
+
+      message PoolConfig {
+        string pool_name = 1; // Pool name
+        int64 connection_timeout = 2; // Connection timeout in milliseconds
+        int64 validation_timeout = 3; // Validation timeout in milliseconds
+        int64 idle_timeout = 4; // Idle timeout in milliseconds
+        int64 max_lifetime = 5; // Maximum connection lifetime in milliseconds
+        int32 minimum_idle = 6; // Minimum number of idle connections
+        int32 maximum_pool_size = 7; // Maximum pool size
+        int64 leak_detection_threshold = 8; // Leak detection threshold in milliseconds
+        string jdbc_url = 9; // JDBC URL (may be redacted for security)
+        string username = 10; // Database username (may be redacted for security)
+      }
+    }
+    message ConfigDetails {
+      string api_endpoint = 1; // API endpoint from the config file
+      string certificate_name = 2; // Certificate name from the config file
+      string certificate_description = 3; // Certificate description from the config file
+    }
   }
 
   /**
