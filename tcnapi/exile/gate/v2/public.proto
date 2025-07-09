@@ -353,6 +353,7 @@ message StreamJobsResponse {
     SeppukuRequest shutdown = 101; // Request to shut down the client
     LoggingRequest logging = 102; // Request related to logging
     DiagnosticsRequest diagnostics = 103; // Request for diagnostics
+    ListTenantLogsRequest list_tenant_logs = 104; // Request to list tenant logs
   }
 
   /**
@@ -472,6 +473,12 @@ message StreamJobsResponse {
    * Empty response indicates successful diagnostics.
    */
   message DiagnosticsRequest {}
+
+  /**
+   * Request message for listing tenant logs.
+   * Empty response indicates successful log retrieval.
+   */
+  message ListTenantLogsRequest {}
 }
 
 /**
@@ -498,6 +505,7 @@ message SubmitJobResultsRequest {
     SeppukuResult shutdown_result = 23; // Result of shutdown request
     LoggingResult logging_result = 24; // Result of logging request
     DiagnosticsResult diagnostics_result = 25; // Result of diagnostics request
+    ListTenantLogsResult list_tenant_logs_result = 26; // Result of listing tenant logs
   }
 
   /**
@@ -802,6 +810,35 @@ message SubmitJobResultsRequest {
    * Empty response indicates successful log processing.
    */
   message LoggingResult {}
+
+  /**
+   * Result message for listing tenant logs.
+   * Contains log groups with logs and metadata.
+   */
+  message ListTenantLogsResult {
+    repeated LogGroup log_groups = 1; // List of log groups
+    string next_page_token = 2; // Token for pagination
+
+    message LogGroup {
+      string name = 1; // Name of the log group
+      repeated string logs = 2; // List of log messages
+      TimeRange time_range = 3; // Time range for the logs
+      map<string, LogLevel> log_levels = 4; // Log levels for different components
+
+      message TimeRange {
+        google.protobuf.Timestamp start_time = 1; // Start time
+        google.protobuf.Timestamp end_time = 2; // End time
+      }
+
+      enum LogLevel {
+        DEBUG = 0;
+        INFO = 1;
+        WARNING = 2;
+        ERROR = 3;
+        FATAL = 4;
+      }
+    }
+  }
 }
 
 /**
