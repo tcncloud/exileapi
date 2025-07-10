@@ -476,9 +476,14 @@ message StreamJobsResponse {
 
   /**
    * Request message for listing tenant logs.
-   * Empty response indicates successful log retrieval.
+   * Contains filter parameters for time range filtering.
    */
-  message ListTenantLogsRequest {}
+  message ListTenantLogsRequest {
+    // Optional. Filter for the returned logs.
+    // Filter syntax follows AIP-160. For example:
+    // `timestamp >= "2023-01-01T00:00:00Z" AND timestamp <= "2023-01-31T23:59:59Z"`
+    string filter = 1;
+  }
 }
 
 /**
