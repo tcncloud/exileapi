@@ -301,6 +301,14 @@ service GateService {
   }
 }
 
+// TimeRange represents an inclusive time interval for filtering logs.
+message TimeRange {
+  // Start of the time range (inclusive).
+  google.protobuf.Timestamp start_time = 1;
+  // End of the time range (inclusive).
+  google.protobuf.Timestamp end_time = 2;
+}
+
 /**
  * Request message for logging operations.
  */
@@ -476,13 +484,11 @@ message StreamJobsResponse {
 
   /**
    * Request message for listing tenant logs.
-   * Contains filter parameters for time range filtering.
+   * Contains time range parameters for filtering logs.
    */
   message ListTenantLogsRequest {
-    // Optional. Filter for the returned logs.
-    // Filter syntax follows AIP-160. For example:
-    // `timestamp >= "2023-01-01T00:00:00Z" AND timestamp <= "2023-01-31T23:59:59Z"`
-    string filter = 1;
+    // Optional time range for filtering logs
+    TimeRange time_range = 1;
   }
 }
 
@@ -829,11 +835,6 @@ message SubmitJobResultsRequest {
       repeated string logs = 2; // List of log messages
       TimeRange time_range = 3; // Time range for the logs
       map<string, LogLevel> log_levels = 4; // Log levels for different components
-
-      message TimeRange {
-        google.protobuf.Timestamp start_time = 1; // Start time
-        google.protobuf.Timestamp end_time = 2; // End time
-      }
 
       enum LogLevel {
         DEBUG = 0;
