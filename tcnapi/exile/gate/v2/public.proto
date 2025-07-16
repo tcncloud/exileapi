@@ -362,6 +362,7 @@ message StreamJobsResponse {
     LoggingRequest logging = 102; // Request related to logging
     DiagnosticsRequest diagnostics = 103; // Request for diagnostics
     ListTenantLogsRequest list_tenant_logs = 104; // Request to list tenant logs
+    SetLogLevelRequest set_log_level = 105; // Request to set log level for a specific logger
   }
 
   /**
@@ -490,6 +491,22 @@ message StreamJobsResponse {
     // Optional time range for filtering logs
     TimeRange time_range = 1;
   }
+
+  /**
+   * Request message for setting log level for a specific logger.
+   */
+  message SetLogLevelRequest {
+    string log = 1; // Name of the logger to set level for
+    LogLevel log_level = 2; // Log level to set
+
+    enum LogLevel {
+      DEBUG = 0;
+      INFO = 1;
+      WARNING = 2;
+      ERROR = 3;
+      FATAL = 4;
+    }
+  }
 }
 
 /**
@@ -517,6 +534,7 @@ message SubmitJobResultsRequest {
     LoggingResult logging_result = 24; // Result of logging request
     DiagnosticsResult diagnostics_result = 25; // Result of diagnostics request
     ListTenantLogsResult list_tenant_logs_result = 26; // Result of listing tenant logs
+    SetLogLevelResult set_log_level_result = 27; // Result of setting log level
   }
 
   /**
@@ -844,6 +862,15 @@ message SubmitJobResultsRequest {
         FATAL = 4;
       }
     }
+  }
+
+  /**
+   * Result message for setting log level.
+   * Contains confirmation of the log level change.
+   */
+  message SetLogLevelResult {
+    bool success = 1; // Whether the log level was successfully set
+    string message = 2; // Optional message about the operation
   }
 }
 
