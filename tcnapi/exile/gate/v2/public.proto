@@ -866,11 +866,18 @@ message SubmitJobResultsRequest {
 
   /**
    * Result message for setting log level.
-   * Contains confirmation of the log level change.
+   * Contains the updated tenant information.
    */
   message SetLogLevelResult {
-    bool success = 1; // Whether the log level was successfully set
-    string message = 2; // Optional message about the operation
+    Tenant tenant = 1; // The tenant that was updated
+
+    message Tenant {
+      string name = 1; // The name of the tenant. name will be in the format {org_id}::{unique_identifier}
+      string sati_version = 2; // The version of the tenant
+      string plugin_version = 3; // The version of the plugin
+      google.protobuf.Timestamp update_time = 4; // The time when the tenant was last updated
+      string connected_gate = 5; // The gate the tenant is connected with. will be empty if the tenant is not connected
+    }
   }
 }
 
