@@ -632,6 +632,7 @@ message SubmitJobResultsRequest {
     SystemProperties system_properties = 10; // System properties
     repeated HikariPoolMetrics hikari_pool_metrics = 11; // Hikari pool metrics
     ConfigDetails config_details = 12; // Config details
+    EventStreamStats event_stream_stats = 13; // Event stream statistics
     message OperatingSystem {
       string name = 1; // OS name (e.g., "Linux", "Windows")
       string version = 2; // OS version
@@ -825,6 +826,14 @@ message SubmitJobResultsRequest {
       string api_endpoint = 1; // API endpoint from the config file
       string certificate_name = 2; // Certificate name from the config file
       string certificate_description = 3; // Certificate description from the config file
+    }
+    message EventStreamStats {
+      string stream_name = 1; // Name of the event stream
+      string status = 2; // Status of the event stream (e.g., "running", "stopped")
+      int32 max_jobs = 3; // Maximum number of jobs that can be processed simultaneously
+      int32 running_jobs = 4; // Number of currently running jobs
+      int64 completed_jobs = 5; // Total number of completed jobs
+      int32 queued_jobs = 6; // Number of jobs currently queued
     }
   }
 
