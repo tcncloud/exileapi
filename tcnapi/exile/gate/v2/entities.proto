@@ -195,7 +195,7 @@ message ExileTransferInstance {
     COLD_OUTBOUND = 6;
   }
   enum TransferResultType {
-    RESULT_TYPE_UNSPECIFIED = 0;
+    TRANSFER_RESULT_TYPE_UNSPECIFIED = 0;
     ACCEPTED = 1;
     AGENT_CANCEL = 2;
     CALLER_HANGUP = 3;
