@@ -905,6 +905,8 @@ message Event {
     ExileAgentCall agent_call = 10; // Event related to an agent call
     ExileTelephonyResult telephony_result = 11; // Event related to telephony results
     ExileAgentResponse agent_response = 12; // Event related to an agent response
+    ExileTransferInstance transfer_instance = 13; // Event related to a transfer instance
+
   }
 }
 
