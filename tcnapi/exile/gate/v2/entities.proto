@@ -143,6 +143,66 @@ message ExileAgentResponse {
   string partner_agent_id = 100;
 }
 
+message ExileTransferInstance {
+  int64 client_sid = 1;
+  string org_id = 2;
+  string transfer_instance_id = 3;
+
+  Source source = 4;
+  Destination destination = 5;
+
+  google.protobuf.Timestamp create_time = 10;
+  google.protobuf.Timestamp update_time = 11;
+  google.protobuf.Timestamp transfer_pending_start_time = 12;
+  google.protobuf.Timestamp transfer_start_time = 13;
+  google.protobuf.Timestamp transfer_end_time = 14;
+  google.protobuf.Timestamp transfer_external_end_time = 15;
+
+  TransferResultType transfer_result = 20;
+  TransferType transfer_type = 21;
+
+  bool start_as_pending = 22;
+  bool started_as_conference = 23;
+
+  int64 duration_microseconds = 24;
+  int64 external_duration_microseconds = 25;
+  int64 pending_duration_microseconds = 26;
+
+  message Source {
+    string partner_agent_id = 1;
+    int64 call_sid = 2;
+    string call_type = 3;
+    int64 conversation_id = 4;
+    int64 session_sid = 5;
+    string user_id = 6;
+  }
+  message Destination {
+    string partner_agent_id = 1;
+    int64 call_sid = 2;
+    string call_type = 3;
+    int64 conversation_id = 4;
+    string phone_number = 5;
+    int64 session_sid = 6;
+    map<string, bool> skills = 7;
+  }
+  enum TransferType {
+    TRANSFER_TYPE_UNSPECIFIED = 0;
+    WARM_AGENT = 1;
+    WARM_CALLER = 2;
+    WARM_OUTBOUND = 3;
+    WARM_SKILL = 4;
+    COLD_AGENT = 5;
+    COLD_OUTBOUND = 6;
+  }
+  enum TransferResultType {
+    TRANSFER_RESULT_TYPE_UNSPECIFIED = 0;
+    ACCEPTED = 1;
+    AGENT_CANCEL = 2;
+    CALLER_HANGUP = 3;
+    DESTINATION_HANGUP = 4;
+  }
+}
+
 message AgentEvent {
   string channel = 1;
   AgentState old_state = 2;
