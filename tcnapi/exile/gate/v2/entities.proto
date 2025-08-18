@@ -169,28 +169,34 @@ message ExileTransferInstance {
   int64 pending_duration_microseconds = 26;
 
   message Source {
-    Call call = 1;
-    Agent agent = 2;
+    SourceCall call = 1;
+    message SourceCall {
+      string partner_agent_id = 1;
+      string user_id = 2;
+      string call_type = 3;
+      int64 conversation_id = 4;
+      string session_id = 5;
+    }
   }
   message Destination {
     oneof entity {
-      Call call = 1;
-      Agent agent = 2;
-      Phone phone = 3;
+      DestinationCall call = 1;
+      DestinationAgent agent = 2;
+      DestinationPhoneNumber phone = 3;
     }
     map<string, bool> skills = 7;
   }
-  message Call {
+  message DestinationCall {
     int64 call_sid = 1;
     string call_type = 2;
     int64 conversation_id = 3;
   }
-  message Agent {
+  message DestinationAgent {
     int64 session_sid = 1;
     string partner_agent_id = 2;
     string user_id = 3;
   }
-  message Phone {
+  message DestinationPhoneNumber {
     string phone_number = 1;
   }
   enum TransferType {
