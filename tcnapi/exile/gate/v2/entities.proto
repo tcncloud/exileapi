@@ -171,11 +171,12 @@ message ExileTransferInstance {
   message Source {
     SourceCall call = 1;
     message SourceCall {
-      string partner_agent_id = 1;
-      string user_id = 2;
-      string call_type = 3;
-      int64 conversation_id = 4;
-      string session_id = 5;
+      int64 call_sid = 1;
+      string call_type = 2;
+      string partner_agent_id = 3;
+      string user_id = 4;
+      int64 conversation_id = 5;
+      int64 session_sid = 6;
     }
   }
   message Destination {
