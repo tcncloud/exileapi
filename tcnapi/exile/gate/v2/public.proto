@@ -181,6 +181,42 @@ service GateService {
       body: "*"
     };
   }
+
+  /**
+   * Call transfer operations
+   * These methods provide call transfer functionality for active calls.
+   */
+  // Transfer Call to Agent - transfers a call to another agent
+  rpc TransferCallToAgent(TransferCallToAgentRequest) returns (TransferCallToAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/transfer_call_to_agent"
+      body: "*"
+    };
+  }
+
+  // Transfer Call to Phone - transfers a call to an external phone number (Open Transfer)
+  rpc TransferCallToPhone(TransferCallToPhoneRequest) returns (TransferCallToPhoneResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/transfer_call_to_phone"
+      body: "*"
+    };
+  }
+
+  // Transfer Call to Queue - transfers a call to a skill queue/hunt group
+  rpc TransferCallToQueue(TransferCallToQueueRequest) returns (TransferCallToQueueResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/transfer_call_to_queue"
+      body: "*"
+    };
+  }
+
+  // Transfer Call to PBX Extension - transfers a call to a PBX extension
+  rpc TransferCallToPBXExtension(TransferCallToPBXExtensionRequest) returns (TransferCallToPBXExtensionResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/transfer_call_to_pbx_extension"
+      body: "*"
+    };
+  }
   rpc ListNCLRulesetNames(ListNCLRulesetNamesRequest) returns (ListNCLRulesetNamesResponse) {
     option (google.api.http) = {get: "/tcnapi/exile/gate/v2/list_ncl_ruleset_names"};
   }
@@ -1174,6 +1210,97 @@ message DialResponse {
   // this is just an alternate name for call_sid.
   // will be removed in a future version.
   string caller_sid = 9 [deprecated = true];
+}
+
+/**
+ * Transfer Request/Response Messages
+ * These messages handle the various types of call transfers.
+ */
+
+/**
+ * Request message for transferring a call to another agent.
+ */
+message TransferCallToAgentRequest {
+  string partner_agent_id = 1; // ID of the agent initiating the transfer
+  string call_sid = 2; // Call session ID to transfer
+  string target_agent_id = 3; // ID of the target agent to transfer to
+  TransferType transfer_type = 4; // WARM_AGENT, COLD_AGENT, or CONFERENCE
+  google.protobuf.StringValue caller_id = 5; // Optional caller ID override
+}
+
+/**
+ * Response message for transferring a call to another agent.
+ */
+message TransferCallToAgentResponse {
+  bool success = 1; // True if transfer was initiated successfully
+  string transfer_sid = 2; // Transfer session ID
+  string status = 3; // Status message or error details
+  string target_agent_id = 4; // Confirmed target agent ID
+}
+
+/**
+ * Request message for transferring a call to an external phone number.
+ */
+message TransferCallToPhoneRequest {
+  string partner_agent_id = 1; // ID of the agent initiating the transfer
+  string call_sid = 2; // Call session ID to transfer
+  string phone_number = 3; // Phone number to transfer to
+  TransferType transfer_type = 4; // WARM_OUTBOUND, COLD_OUTBOUND, or CONFERENCE
+  google.protobuf.StringValue caller_id = 5; // Optional caller ID override
+  google.protobuf.StringValue country_code = 6; // Country code for the phone number
+}
+
+/**
+ * Response message for transferring a call to an external phone number.
+ */
+message TransferCallToPhoneResponse {
+  bool success = 1; // True if transfer was initiated successfully
+  string transfer_sid = 2; // Transfer session ID
+  string status = 3; // Status message or error details
+  string phone_number = 4; // Confirmed phone number
+}
+
+/**
+ * Request message for transferring a call to a queue/skill group.
+ */
+message TransferCallToQueueRequest {
+  string partner_agent_id = 1; // ID of the agent initiating the transfer
+  string call_sid = 2; // Call session ID to transfer
+  string queue_id = 3; // Queue/skill group ID to transfer to
+  TransferType transfer_type = 4; // WARM_SKILL or CONFERENCE (no cold skill transfers)
+  map<string, bool> required_skills = 5; // Required skills for target agents
+  google.protobuf.StringValue caller_id = 6; // Optional caller ID override
+}
+
+/**
+ * Response message for transferring a call to a queue/skill group.
+ */
+message TransferCallToQueueResponse {
+  bool success = 1; // True if transfer was initiated successfully
+  string transfer_sid = 2; // Transfer session ID
+  string status = 3; // Status message or error details
+  string queue_id = 4; // Confirmed queue ID
+}
+
+/**
+ * Request message for transferring a call to a PBX extension.
+ */
+message TransferCallToPBXExtensionRequest {
+  string partner_agent_id = 1; // ID of the agent initiating the transfer
+  string call_sid = 2; // Call session ID to transfer
+  string extension = 3; // PBX extension to transfer to
+  TransferType transfer_type = 4; // WARM_OUTBOUND, COLD_OUTBOUND, or CONFERENCE
+  google.protobuf.StringValue caller_id = 5; // Optional caller ID override
+}
+
+/**
+ * Response message for transferring a call to a PBX extension.
+ */
+message TransferCallToPBXExtensionResponse {
+  bool success = 1; // True if transfer was initiated successfully
+  string transfer_sid = 2; // Transfer session ID
+  string status = 3; // Status message or error details
+  string extension = 4; // Confirmed extension
 }
 
 message ListNCLRulesetNamesRequest {}
