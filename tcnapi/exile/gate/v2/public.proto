@@ -300,21 +300,9 @@ service GateService {
       body: "*"
     };
   }
-  rpc TransferCold(TransferColdRequest) returns (TransferColdResponse) {
+  rpc Transfer(TransferRequest) returns (TransferResponse) {
     option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_cold"
-      body: "*"
-    };
-  }
-  rpc TransferWarm(TransferWarmRequest) returns (TransferWarmResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_warm"
-      body: "*"
-    };
-  }
-  rpc AgentInviteTransferCallerToConference(AgentInviteTransferCallerToConferenceRequest) returns (AgentInviteTransferCallerToConferenceResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/agent_invite_transfer_caller_to_conference"
+      get: "/tcnapi/exile/gate/v2/transfer"
       body: "*"
     };
   }
@@ -1224,22 +1212,27 @@ message TransferColdRequest {
   }
 }
 
-message TransferColdResponse {}
-
-message TransferWarmRequest {
+message TransferRequest {
   string partner_agent_id = 1;
   oneof destination {
-    string destination_partner_agent_id = 2;
+    Agent receiving_partner_agent_id = 2;
     Outbound outbound = 3;
   }
+  Kind kind = 5;
   Action action = 4;
 
+  enum Kind {
+    KIND_COLD = 0;
+    WARM = 1;
+  }
   enum Action {
     ACTION_START = 0;
     APPROVE = 1;
     CANCEL = 2;
   }
-
+  message Agent {
+    string partner_agent_id = 1;
+  }
   message Outbound {
     string caller_id = 1;
     string destination = 2;
@@ -1247,20 +1240,12 @@ message TransferWarmRequest {
   }
 }
 
-message TransferWarmResponse {}
-
-message AgentInviteTransferCallerToConferenceRequest {
-  string partner_agent_id = 1;
-}
-
-message AgentInviteTransferCallerToConferenceResponse {}
+message TransferResponse {}
 
 message CallerRequeueRequest {
   string partner_agent_id = 1;
-  string new_config_folder = 2;
-  map<string, bool> skills = 3;
-  bool replace_skills = 4;
-  bool replace_config = 5;
+  // map<string, bool> skills = 3;
+  // bool replace_skills = 4;
 }
 
 message CallerRequeueResponse {}
