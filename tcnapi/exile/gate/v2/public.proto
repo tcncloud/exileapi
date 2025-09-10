@@ -300,51 +300,15 @@ service GateService {
       body: "*"
     };
   }
-  rpc TransferColdToAgent(TransferColdToAgentRequest) returns (TransferColdToAgentResponse) {
+  rpc TransferCold(TransferColdRequest) returns (TransferColdResponse) {
     option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_cold_to_agent"
+      get: "/tcnapi/exile/gate/v2/transfer_cold"
       body: "*"
     };
   }
-  rpc TransferColdToOutbound(TransferColdToOutboundRequest) returns (TransferColdToOutboundResponse) {
+  rpc TransferWarm(TransferWarmRequest) returns (TransferWarmResponse) {
     option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_cold_to_outbound"
-      body: "*"
-    };
-  }
-  rpc TransferWarmToAgentStart(TransferWarmToAgentStartRequest) returns (TransferWarmToAgentStartResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_warm_to_agent_start"
-      body: "*"
-    };
-  }
-  rpc TransferWarmToAgentApprove(TransferWarmToAgentApproveRequest) returns (TransferWarmToAgentApproveResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_warm_to_agent_approve"
-      body: "*"
-    };
-  }
-  rpc TransferWarmToAgentCancel(TransferWarmToAgentCancelRequest) returns (TransferWarmToAgentCancelResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_warm_to_agent_cancel"
-      body: "*"
-    };
-  }
-  rpc TransferWarmToOutboundStart(TransferWarmToOutboundStartRequest) returns (TransferWarmToOutboundStartResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_warm_to_outbound_start"
-      body: "*"
-    };
-  }
-  rpc TransferWarmToOutboundApprove(TransferWarmToOutboundApproveRequest) returns (TransferWarmToOutboundApproveResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_warm_to_outbound_approve"
-      body: "*"
-    };
-  }
-  rpc TransferWarmToOutboundCancel(TransferWarmToOutboundCancelRequest) returns (TransferWarmToOutboundCancelResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/transfer_warm_to_outbound_cancel"
+      get: "/tcnapi/exile/gate/v2/transfer_warm"
       body: "*"
     };
   }
@@ -1246,65 +1210,45 @@ message DialResponse {
  * Request message for transferring a call to another agent.
  * Supports: Cold transfer, Warm transfer, and Conference.
  */
-message TransferColdToAgentRequest {
+
+message TransferColdRequest {
   string partner_agent_id = 1;
-  string destination_partner_agent_id = 2;
+  oneof destination {
+    string destination_partner_agent_id = 1;
+    Outbound outbound = 2;
+  }
+
+  message Outbound {
+    string caller_id = 1;
+    string destination = 2;
+    repeated string reserved_carriers = 3;
+  }
 }
 
-message TransferColdToAgentResponse {}
+message TransferColdResponse {}
 
-message TransferColdToOutboundRequest {
+message TransferWarmRequest {
   string partner_agent_id = 1;
-  string caller_id = 2;
-  string destination = 3;
-  repeated string reserved_carriers = 4;
+  oneof destination {
+    string destination_partner_agent_id = 2;
+    Outbound outbound = 3;
+  }
+  Action action = 4;
+
+  enum Action {
+    ACTION_START = 0;
+    APPROVE = 1;
+    CANCEL = 2;
+  }
+
+  message Outbound {
+    string caller_id = 1;
+    string destination = 2;
+    bool caller_hold = 4;
+  }
 }
 
-message TransferColdToOutboundResponse {}
-
-message TransferWarmToAgentStartRequest {
-  string partner_agent_id = 1;
-  string destination_partner_agent_id = 2;
-  bool caller_hold = 3;
-}
-
-message TransferWarmToAgentStartResponse {}
-
-message TransferWarmToAgentApproveRequest {
-  string partner_agent_id = 1;
-  string destination_partner_agent_id = 2;
-}
-
-message TransferWarmToAgentApproveResponse {}
-
-message TransferWarmToAgentCancelRequest {
-  string partner_agent_id = 1;
-  string destination_partner_agent_id = 2;
-}
-
-message TransferWarmToAgentCancelResponse {}
-
-message TransferWarmToOutboundStartRequest {
-  string partner_agent_id = 1;
-  string caller_id = 3;
-  string destination = 4;
-  repeated string reserved_carriers = 5;
-  bool caller_hold = 6;
-}
-
-message TransferWarmToOutboundStartResponse {}
-
-message TransferWarmToOutboundApproveRequest {
-  string partner_agent_id = 1;
-}
-
-message TransferWarmToOutboundApproveResponse {}
-
-message TransferWarmToOutboundCancelRequest {
-  string partner_agent_id = 1;
-}
-
-message TransferWarmToOutboundCancelResponse {}
+message TransferWarmResponse {}
 
 message AgentInviteTransferCallerToConferenceRequest {
   string partner_agent_id = 1;
