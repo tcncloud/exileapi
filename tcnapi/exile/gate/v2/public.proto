@@ -185,10 +185,10 @@ service GateService {
   /**
    * Call transfer operations
    * These methods provide call transfer functionality for active calls.
-   * 
+   *
    * 4 Transfer Options:
    * - Agent Transfer: Cold, Warm, Conference
-   * - Open Transfer: Cold, Warm, Conference  
+   * - Open Transfer: Cold, Warm, Conference
    * - Queue Transfer: Queue transfer (warm skill transfer)
    * - PBX Extension: Cold only
    */
@@ -338,6 +338,66 @@ service GateService {
   rpc ListSearchableRecordingFields(ListSearchableRecordingFieldsRequest) returns (ListSearchableRecordingFieldsResponse) {
     option (google.api.http) = {
       get: "/tcnapi/exile/gate/v2/list_searchable_recording_fields"
+      body: "*"
+    };
+  }
+  rpc TransferColdToAgent(TransferColdToAgentRequest) returns (TransferColdToAgentResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer_cold_to_agent"
+      body: "*"
+    };
+  }
+  rpc TransferColdToOutbound(TransferColdToOutboundRequest) returns (TransferColdToOutboundResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer_cold_to_outbound"
+      body: "*"
+    };
+  }
+  rpc TransferWarmToAgentStart(TransferWarmToAgentStartRequest) returns (TransferWarmToAgentStartResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer_warm_to_agent_start"
+      body: "*"
+    };
+  }
+  rpc TransferWarmToAgentApprove(TransferWarmToAgentApproveRequest) returns (TransferWarmToAgentApproveResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer_warm_to_agent_approve"
+      body: "*"
+    };
+  }
+  rpc TransferWarmToAgentCancel(TransferWarmToAgentCancelRequest) returns (TransferWarmToAgentCancelResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer_warm_to_agent_cancel"
+      body: "*"
+    };
+  }
+  rpc TransferWarmToOutboundStart(TransferWarmToOutboundStartRequest) returns (TransferWarmToOutboundStartResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer_warm_to_outbound_start"
+      body: "*"
+    };
+  }
+  rpc TransferWarmToOutboundApprove(TransferWarmToOutboundApproveRequest) returns (TransferWarmToOutboundApproveResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer_warm_to_outbound_approve"
+      body: "*"
+    };
+  }
+  rpc TransferWarmToOutboundCancel(TransferWarmToOutboundCancelRequest) returns (TransferWarmToOutboundCancelResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer_warm_to_outbound_cancel"
+      body: "*"
+    };
+  }
+  rpc AgentInviteTransferCallerToConference(AgentInviteTransferCallerToConferenceRequest) returns (AgentInviteTransferCallerToConferenceResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/agent_invite_transfer_caller_to_conference"
+      body: "*"
+    };
+  }
+  rpc CallerRequeue(CallerRequeueRequest) returns (CallerRequeueResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/caller_requeue"
       body: "*"
     };
   }
@@ -1227,88 +1287,81 @@ message DialResponse {
  * Request message for transferring a call to another agent.
  * Supports: Cold transfer, Warm transfer, and Conference.
  */
-message TransferCallToAgentRequest {
-  string partner_agent_id = 1; // ID of the agent initiating the transfer
-  string call_sid = 2; // Call session ID to transfer
-  string target_agent_id = 3; // ID of the target agent to transfer to
-  TransferType transfer_type = 4; // WARM_AGENT, COLD_AGENT, or CONFERENCE
-  google.protobuf.StringValue caller_id = 5; // Optional caller ID override
+message TransferColdToAgentRequest {
+  int64 partner_agent_id = 1;
+  int64 destination_partner_agent_id = 2;
 }
 
-/**
- * Response message for transferring a call to another agent.
- */
-message TransferCallToAgentResponse {
-  bool success = 1; // True if transfer was initiated successfully
-  string transfer_sid = 2; // Transfer session ID
-  string status = 3; // Status message or error details
-  string target_agent_id = 4; // Confirmed target agent ID
+message TransferColdToAgentResponse {}
+
+message TransferColdToOutboundRequest {
+  int64 partner_agent_id = 1;
+  string caller_id = 2;
+  string destination = 3;
+  repeated string reserved_carriers = 4;
 }
 
-/**
- * Request message for transferring a call to an external phone number (Open Transfer).
- * Supports: Cold transfer, Warm transfer, and Conference.
- */
-message TransferCallToPhoneRequest {
-  string partner_agent_id = 1; // ID of the agent initiating the transfer
-  string call_sid = 2; // Call session ID to transfer
-  string phone_number = 3; // Phone number to transfer to
-  TransferType transfer_type = 4; // WARM_OUTBOUND, COLD_OUTBOUND, or CONFERENCE
-  google.protobuf.StringValue caller_id = 5; // Optional caller ID override
-  google.protobuf.StringValue country_code = 6; // Country code for the phone number
+message TransferColdToOutboundResponse {}
+
+message TransferWarmToAgentStartRequest {
+  int64 partner_agent_id = 1;
+  int64 destination_partner_agent_id = 2;
+  bool caller_hold = 3;
 }
 
-/**
- * Response message for transferring a call to an external phone number.
- */
-message TransferCallToPhoneResponse {
-  bool success = 1; // True if transfer was initiated successfully
-  string transfer_sid = 2; // Transfer session ID
-  string status = 3; // Status message or error details
-  string phone_number = 4; // Confirmed phone number
+message TransferWarmToAgentStartResponse {}
+
+message TransferWarmToAgentApproveRequest {
+  int64 partner_agent_id = 1;
+  int64 destination_partner_agent_id = 2;
 }
 
-/**
- * Request message for transferring a call to a queue/skill group.
- */
-message TransferCallToQueueRequest {
-  string partner_agent_id = 1; // ID of the agent initiating the transfer
-  string call_sid = 2; // Call session ID to transfer
-  string queue_id = 3; // Queue/skill group ID to transfer to
-  map<string, bool> required_skills = 4; // Required skills for target agents
-  google.protobuf.StringValue caller_id = 5; // Optional caller ID override
+message TransferWarmToAgentApproveResponse {}
+
+message TransferWarmToAgentCancelRequest {
+  int64 partner_agent_id = 1;
+  int64 destination_partner_agent_id = 2;
 }
 
-/**
- * Response message for transferring a call to a queue/skill group.
- */
-message TransferCallToQueueResponse {
-  bool success = 1; // True if transfer was initiated successfully
-  string transfer_sid = 2; // Transfer session ID
-  string status = 3; // Status message or error details
-  string queue_id = 4; // Confirmed queue ID
+message TransferWarmToAgentCancelResponse {}
+
+message TransferWarmToOutboundStartRequest {
+  int64 partner_agent_id = 1;
+  string caller_id = 3;
+  string destination = 4;
+  repeated string reserved_carriers = 5;
+  bool caller_hold = 6;
 }
 
-/**
- * Request message for transferring a call to a PBX extension.
- * Note: PBX extensions only support cold transfers (no warm/conference options).
- */
-message TransferCallToPBXExtensionRequest {
-  string partner_agent_id = 1; // ID of the agent initiating the transfer
-  string call_sid = 2; // Call session ID to transfer
-  string extension = 3; // PBX extension to transfer to
-  google.protobuf.StringValue caller_id = 4; // Optional caller ID override
+message TransferWarmToOutboundStartResponse {}
+
+message TransferWarmToOutboundApproveRequest {
+  int64 partner_agent_id = 1;
 }
 
-/**
- * Response message for transferring a call to a PBX extension.
- */
-message TransferCallToPBXExtensionResponse {
-  bool success = 1; // True if transfer was initiated successfully
-  string transfer_sid = 2; // Transfer session ID
-  string status = 3; // Status message or error details
-  string extension = 4; // Confirmed extension
+message TransferWarmToOutboundApproveResponse {}
+
+message TransferWarmToOutboundCancelRequest {
+  int64 partner_agent_id = 1;
 }
+
+message TransferWarmToOutboundCancelResponse {}
+
+message AgentInviteTransferCallerToConferenceRequest {
+  int64 partner_agent_id = 1;
+}
+
+message AgentInviteTransferCallerToConferenceResponse {}
+
+message CallerRequeueRequest {
+  int64 partner_agent_id = 1;
+  string new_config_folder = 2;
+  map<string, bool> skills = 3;
+  bool replace_skills = 4;
+  bool replace_config = 5;
+}
+
+message CallerRequeueResponse {}
 
 message ListNCLRulesetNamesRequest {}
 message ListNCLRulesetNamesResponse {
