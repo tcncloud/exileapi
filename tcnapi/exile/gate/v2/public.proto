@@ -182,47 +182,6 @@ service GateService {
     };
   }
 
-  /**
-   * Call transfer operations
-   * These methods provide call transfer functionality for active calls.
-   *
-   * 4 Transfer Options:
-   * - Agent Transfer: Cold, Warm, Conference
-   * - Open Transfer: Cold, Warm, Conference
-   * - Queue Transfer: Queue transfer (warm skill transfer)
-   * - PBX Extension: Cold only
-   */
-  // Transfer Call to Agent - transfers a call to another agent
-  rpc TransferCallToAgent(TransferCallToAgentRequest) returns (TransferCallToAgentResponse) {
-    option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/transfer_call_to_agent"
-      body: "*"
-    };
-  }
-
-  // Transfer Call to Phone - transfers a call to an external phone number (Open Transfer)
-  rpc TransferCallToPhone(TransferCallToPhoneRequest) returns (TransferCallToPhoneResponse) {
-    option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/transfer_call_to_phone"
-      body: "*"
-    };
-  }
-
-  // Transfer Call to Queue - transfers a call to a skill queue/hunt group
-  rpc TransferCallToQueue(TransferCallToQueueRequest) returns (TransferCallToQueueResponse) {
-    option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/transfer_call_to_queue"
-      body: "*"
-    };
-  }
-
-  // Transfer Call to PBX Extension - transfers a call to a PBX extension (cold only)
-  rpc TransferCallToPBXExtension(TransferCallToPBXExtensionRequest) returns (TransferCallToPBXExtensionResponse) {
-    option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/transfer_call_to_pbx_extension"
-      body: "*"
-    };
-  }
   rpc ListNCLRulesetNames(ListNCLRulesetNamesRequest) returns (ListNCLRulesetNamesResponse) {
     option (google.api.http) = {get: "/tcnapi/exile/gate/v2/list_ncl_ruleset_names"};
   }
