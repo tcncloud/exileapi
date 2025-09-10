@@ -1288,14 +1288,14 @@ message DialResponse {
  * Supports: Cold transfer, Warm transfer, and Conference.
  */
 message TransferColdToAgentRequest {
-  int64 partner_agent_id = 1;
-  int64 destination_partner_agent_id = 2;
+  string partner_agent_id = 1;
+  string destination_partner_agent_id = 2;
 }
 
 message TransferColdToAgentResponse {}
 
 message TransferColdToOutboundRequest {
-  int64 partner_agent_id = 1;
+  string partner_agent_id = 1;
   string caller_id = 2;
   string destination = 3;
   repeated string reserved_carriers = 4;
@@ -1304,29 +1304,29 @@ message TransferColdToOutboundRequest {
 message TransferColdToOutboundResponse {}
 
 message TransferWarmToAgentStartRequest {
-  int64 partner_agent_id = 1;
-  int64 destination_partner_agent_id = 2;
+  string partner_agent_id = 1;
+  string destination_partner_agent_id = 2;
   bool caller_hold = 3;
 }
 
 message TransferWarmToAgentStartResponse {}
 
 message TransferWarmToAgentApproveRequest {
-  int64 partner_agent_id = 1;
-  int64 destination_partner_agent_id = 2;
+  string partner_agent_id = 1;
+  string destination_partner_agent_id = 2;
 }
 
 message TransferWarmToAgentApproveResponse {}
 
 message TransferWarmToAgentCancelRequest {
-  int64 partner_agent_id = 1;
-  int64 destination_partner_agent_id = 2;
+  string partner_agent_id = 1;
+  string destination_partner_agent_id = 2;
 }
 
 message TransferWarmToAgentCancelResponse {}
 
 message TransferWarmToOutboundStartRequest {
-  int64 partner_agent_id = 1;
+  string partner_agent_id = 1;
   string caller_id = 3;
   string destination = 4;
   repeated string reserved_carriers = 5;
@@ -1336,25 +1336,25 @@ message TransferWarmToOutboundStartRequest {
 message TransferWarmToOutboundStartResponse {}
 
 message TransferWarmToOutboundApproveRequest {
-  int64 partner_agent_id = 1;
+  string partner_agent_id = 1;
 }
 
 message TransferWarmToOutboundApproveResponse {}
 
 message TransferWarmToOutboundCancelRequest {
-  int64 partner_agent_id = 1;
+  string partner_agent_id = 1;
 }
 
 message TransferWarmToOutboundCancelResponse {}
 
 message AgentInviteTransferCallerToConferenceRequest {
-  int64 partner_agent_id = 1;
+  string partner_agent_id = 1;
 }
 
 message AgentInviteTransferCallerToConferenceResponse {}
 
 message CallerRequeueRequest {
-  int64 partner_agent_id = 1;
+  string partner_agent_id = 1;
   string new_config_folder = 2;
   map<string, bool> skills = 3;
   bool replace_skills = 4;
