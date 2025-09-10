@@ -306,12 +306,6 @@ service GateService {
       body: "*"
     };
   }
-  rpc CallerRequeue(CallerRequeueRequest) returns (CallerRequeueResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/gate/v2/caller_requeue"
-      body: "*"
-    };
-  }
 }
 
 // TimeRange represents an inclusive time interval for filtering logs.
@@ -1204,9 +1198,10 @@ message TransferRequest {
   oneof destination {
     Agent receiving_partner_agent_id = 2;
     Outbound outbound = 3;
+    Queue queue = 4;
   }
-  Kind kind = 4;
-  Action action = 5;
+  Kind kind = 5;
+  Action action = 6;
 
   enum Kind {
     KIND_COLD = 0;
@@ -1225,17 +1220,10 @@ message TransferRequest {
     string destination = 2;
     bool caller_hold = 3;
   }
+  message Queue {}
 }
 
 message TransferResponse {}
-
-message CallerRequeueRequest {
-  string partner_agent_id = 1;
-  // map<string, bool> skills = 3;
-  // bool replace_skills = 4;
-}
-
-message CallerRequeueResponse {}
 
 message ListNCLRulesetNamesRequest {}
 message ListNCLRulesetNamesResponse {
