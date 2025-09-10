@@ -1199,19 +1199,6 @@ message DialResponse {
  * Supports: Cold transfer, Warm transfer, and Conference.
  */
 
-message TransferColdRequest {
-  string partner_agent_id = 1;
-  oneof destination {
-    string destination_partner_agent_id = 1;
-    Outbound outbound = 2;
-  }
-
-  message Outbound {
-    string caller_id = 1;
-    string destination = 2;
-  }
-}
-
 message TransferRequest {
   string partner_agent_id = 1;
   oneof destination {
