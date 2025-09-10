@@ -1221,7 +1221,6 @@ message TransferColdRequest {
   message Outbound {
     string caller_id = 1;
     string destination = 2;
-    repeated string reserved_carriers = 3;
   }
 }
 
