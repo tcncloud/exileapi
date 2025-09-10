@@ -181,6 +181,7 @@ service GateService {
       body: "*"
     };
   }
+
   rpc ListNCLRulesetNames(ListNCLRulesetNamesRequest) returns (ListNCLRulesetNamesResponse) {
     option (google.api.http) = {get: "/tcnapi/exile/gate/v2/list_ncl_ruleset_names"};
   }
@@ -296,6 +297,12 @@ service GateService {
   rpc ListSearchableRecordingFields(ListSearchableRecordingFieldsRequest) returns (ListSearchableRecordingFieldsResponse) {
     option (google.api.http) = {
       get: "/tcnapi/exile/gate/v2/list_searchable_recording_fields"
+      body: "*"
+    };
+  }
+  rpc Transfer(TransferRequest) returns (TransferResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/gate/v2/transfer"
       body: "*"
     };
   }
@@ -1175,6 +1182,48 @@ message DialResponse {
   // will be removed in a future version.
   string caller_sid = 9 [deprecated = true];
 }
+
+/**
+ * Transfer Request/Response Messages
+ * These messages handle the various types of call transfers.
+ */
+
+/**
+ * Request message for transferring a call to another agent.
+ * Supports: Cold transfer, Warm transfer, and Conference.
+ */
+
+message TransferRequest {
+  string partner_agent_id = 1;
+  oneof destination {
+    Agent receiving_partner_agent_id = 2;
+    Outbound outbound = 3;
+    Queue queue = 4;
+  }
+  Kind kind = 5;
+  Action action = 6;
+
+  enum Kind {
+    KIND_COLD = 0;
+    WARM = 1;
+  }
+  enum Action {
+    ACTION_START = 0;
+    APPROVE = 1;
+    CANCEL = 2;
+  }
+  message Agent {
+    string partner_agent_id = 1;
+  }
+  message Outbound {
+    string caller_id = 1;
+    string destination = 2;
+    bool caller_hold = 3;
+  }
+  message Queue {}
+}
+
+message TransferResponse {}
 
 message ListNCLRulesetNamesRequest {}
 message ListNCLRulesetNamesResponse {

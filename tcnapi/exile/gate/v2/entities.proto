@@ -202,12 +202,13 @@ message ExileTransferInstance {
   }
   enum TransferType {
     TRANSFER_TYPE_UNSPECIFIED = 0;
-    WARM_AGENT = 1;
-    WARM_CALLER = 2;
-    WARM_OUTBOUND = 3;
-    WARM_SKILL = 4;
-    COLD_AGENT = 5;
-    COLD_OUTBOUND = 6;
+    WARM_AGENT = 1; // Warm transfer to another agent
+    WARM_CALLER = 2; // Transfer involving caller interaction
+    WARM_OUTBOUND = 3; // Warm transfer to external phone/PBX extension
+    WARM_SKILL = 4; // Warm transfer to skill queue/hunt group
+    COLD_AGENT = 5; // Cold transfer to another agent
+    COLD_OUTBOUND = 6; // Cold transfer to external phone/PBX extension
+    CONFERENCE = 7; // Conference all parties together
   }
   enum TransferResultType {
     TRANSFER_RESULT_TYPE_UNSPECIFIED = 0;
