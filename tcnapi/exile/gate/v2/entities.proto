@@ -177,6 +177,7 @@ message ExileTransferInstance {
       string user_id = 4;
       int64 conversation_id = 5;
       int64 session_sid = 6;
+      int64 agent_call_sid = 7;
     }
   }
   message Destination {
