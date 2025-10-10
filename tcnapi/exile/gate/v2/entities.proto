@@ -388,6 +388,8 @@ message ExileCallRecording {
   // Timestamps for entity lifecycle
   google.protobuf.Timestamp create_time = 11;
   google.protobuf.Timestamp update_time = 12;
+  // The zone where the recording is stored
+  string zone = 13;
 }
 
 enum RecordingType {
