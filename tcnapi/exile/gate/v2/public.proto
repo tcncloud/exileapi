@@ -1182,6 +1182,8 @@ message DialResponse {
   // this is just an alternate name for call_sid.
   // will be removed in a future version.
   string caller_sid = 9 [deprecated = true];
+  // Manual dial campaign ID (TaskGroupSid) for the call
+  int64 campaign_id = 10;
 }
 
 /**
