@@ -1277,9 +1277,11 @@ message UpdateAgentStatusResponse {}
 
 /**
  * Request message for listing agents.
- * Empty message as no parameters are needed.
  */
-message ListAgentsRequest {}
+message ListAgentsRequest {
+  optional bool logged_in = 1; // optional filter to return only logged-in agent
+  optional AgentState state = 2; // optional filter to return only agents in the specified state
+}
 
 /**
  * Response message for listing agents (streamed).
@@ -1318,6 +1320,9 @@ message Agent {
   string last_name = 4; // Agent's last name
   string username = 5; // Agent's username
   string partner_agent_id = 6; // ID of the agent in the partner's system
+  int64 current_session_id = 7; // Current session ID
+  AgentState agent_state = 8; // Current agent state
+  bool is_logged_in = 9; // Is agent active
 }
 
 message ListSkillsRequest {}
