@@ -1320,6 +1320,9 @@ message Agent {
   string last_name = 4; // Agent's last name
   string username = 5; // Agent's username
   string partner_agent_id = 6; // ID of the agent in the partner's system
+  int64 current_session_id = 7; // Current session ID
+  AgentState agent_state = 8; // Current agent state
+  bool is_logged_in = 9; // Is agent active
 }
 
 message ListSkillsRequest {}
