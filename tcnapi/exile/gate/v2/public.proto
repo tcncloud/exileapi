@@ -1164,6 +1164,10 @@ message DialRequest {
   // Ruleset name for the call. If provided this will override the ruleset in the huntgroup settings.
   google.protobuf.StringValue ruleset_name = 6;
   bool skip_compliance_checks = 7; // if true the call will ignore all call compliance rules.
+  // if true the call will be recorded,
+  // if false the call will not be recorded
+  // if not provided default behavior for the org will be used.
+  google.protobuf.BoolValue record_call = 8;
 }
 
 /**
