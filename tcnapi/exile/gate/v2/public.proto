@@ -1277,9 +1277,11 @@ message UpdateAgentStatusResponse {}
 
 /**
  * Request message for listing agents.
- * Empty message as no parameters are needed.
  */
-message ListAgentsRequest {}
+message ListAgentsRequest {
+  optional bool logged_in = 1; // optional filter to return only logged-in agent
+  optional AgentState state = 2; // optional filter to return only agents in the specified state
+}
 
 /**
  * Response message for listing agents (streamed).
