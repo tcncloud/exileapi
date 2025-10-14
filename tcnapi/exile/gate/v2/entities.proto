@@ -366,28 +366,20 @@ message Skill {
 
 message ExileCallRecording {
   // The unique identifier of the recording.
-  string id = 1;
+  string recording_id = 1;
   // The unique identifier of the call recorded.
   int64 call_sid = 2;
   // The type of call recorded.
   string call_type = 3;
   // The duration of the recording.
   google.protobuf.Duration duration = 4;
-  // The phone number of the agent.
-  string agent_phone = 5;
-  // The phone number of the client.
-  string client_phone = 6;
-  // The name of the campaign.
-  string campaign = 7;
   // The type of the recording.
-  RecordingType recording_type = 8;
+  RecordingType recording_type = 5;
   // The start time of the recording.
-  google.protobuf.Timestamp start_time = 9;
-  // The user IDs of participating agents.
-  repeated string partner_agent_ids = 10;
+  google.protobuf.Timestamp start_time = 6;
   // Timestamps for entity lifecycle
-  google.protobuf.Timestamp create_time = 11;
-  google.protobuf.Timestamp update_time = 12;
+  google.protobuf.Timestamp create_time = 7;
+  google.protobuf.Timestamp update_time = 8;
 }
 
 enum RecordingType {
