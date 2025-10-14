@@ -913,6 +913,7 @@ message Event {
     ExileTelephonyResult telephony_result = 11; // Event related to telephony results
     ExileAgentResponse agent_response = 12; // Event related to an agent response
     ExileTransferInstance transfer_instance = 13; // Event related to a transfer instance
+    ExileCallRecording call_recording = 14; // Event related to a call recording
   }
 }
 
@@ -1376,15 +1377,6 @@ message Recording {
   RecordingType recording_type = 8; // The type of the recording.
   google.protobuf.Timestamp start_time = 9; // The start time of the recording.
   repeated string partner_agent_ids = 10; // The user IDs of participating agents.
-}
-
-/**
- * Enumeration of recording types.
- */
-enum RecordingType {
-  RECORDING_TYPE_TCN = 0;
-  RECORDING_TYPE_EXTERNAL = 1;
-  RECORDING_TYPE_VOICEMAIL = 2;
 }
 
 /**

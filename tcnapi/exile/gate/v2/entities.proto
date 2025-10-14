@@ -16,6 +16,7 @@ syntax = "proto3";
 
 package tcnapi.exile.gate.v2;
 
+import "google/protobuf/duration.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -361,4 +362,27 @@ message Skill {
   string description = 3;
   // will not be set if the skill is not assigned to an agent
   int64 proficiency = 4;
+}
+
+message ExileCallRecording {
+  // The unique identifier of the recording.
+  string recording_id = 1;
+  // The organization ID the recording belongs to
+  string org_id = 2;
+  // The unique identifier of the call recorded.
+  int64 call_sid = 3;
+  // The type of call recorded.
+  string call_type = 4;
+  // The duration of the recording.
+  google.protobuf.Duration duration = 5;
+  // The type of the recording.
+  RecordingType recording_type = 6;
+  // The start time of the recording.
+  google.protobuf.Timestamp start_time = 7;
+}
+
+enum RecordingType {
+  RECORDING_TYPE_TCN = 0;
+  RECORDING_TYPE_EXTERNAL = 1;
+  RECORDING_TYPE_VOICEMAIL = 2;
 }
