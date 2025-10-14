@@ -367,19 +367,18 @@ message Skill {
 message ExileCallRecording {
   // The unique identifier of the recording.
   string recording_id = 1;
+  // The organization ID the recording belongs to
+  string org_id = 2;
   // The unique identifier of the call recorded.
-  int64 call_sid = 2;
+  int64 call_sid = 3;
   // The type of call recorded.
-  string call_type = 3;
+  string call_type = 4;
   // The duration of the recording.
-  google.protobuf.Duration duration = 4;
+  google.protobuf.Duration duration = 5;
   // The type of the recording.
-  RecordingType recording_type = 5;
+  RecordingType recording_type = 6;
   // The start time of the recording.
-  google.protobuf.Timestamp start_time = 6;
-  // Timestamps for entity lifecycle
-  google.protobuf.Timestamp create_time = 7;
-  google.protobuf.Timestamp update_time = 8;
+  google.protobuf.Timestamp start_time = 7;
 }
 
 enum RecordingType {
