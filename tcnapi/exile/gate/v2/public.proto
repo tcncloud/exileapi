@@ -1211,6 +1211,7 @@ message TransferRequest {
   enum Kind {
     KIND_COLD = 0;
     WARM = 1;
+    CONFERENCE = 2;
   }
   enum Action {
     ACTION_START = 0;
