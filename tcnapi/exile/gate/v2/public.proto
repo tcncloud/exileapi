@@ -1209,12 +1209,12 @@ message TransferRequest {
   Action action = 6;
 
   enum Kind {
-    KIND_COLD = 0;
+    COLD = 0;
     WARM = 1;
     CONFERENCE = 2;
   }
   enum Action {
-    ACTION_START = 0;
+    START = 0;
     APPROVE = 1;
     CANCEL = 2;
   }
