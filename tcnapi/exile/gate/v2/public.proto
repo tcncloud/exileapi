@@ -1432,7 +1432,6 @@ message AddRecordToJourneyBufferRequest {
 
 message AddRecordToJourneyBufferResponse {
   Status status = 1;
-  string server_message = 2;
 
   enum Status {
     INSERTED = 0;
