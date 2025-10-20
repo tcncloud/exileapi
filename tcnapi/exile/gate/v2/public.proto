@@ -306,9 +306,9 @@ service GateService {
       body: "*"
     };
   }
-  rpc AddTacticsRecord(AddTacticsRecordRequest) returns (AddTacticsRecordResponse) {
+  rpc AddRecordToJourneyBuffer(AddRecordToJourneyBufferRequest) returns (AddRecordToJourneyBufferResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/add_tactics_record"
+      post: "/tcnapi/exile/gate/v2/add_record_to_journey_buffer"
       body: "*"
     };
   }
@@ -1426,25 +1426,18 @@ message ListSearchableRecordingFieldsResponse {
   repeated string fields = 1;
 }
 
-message AddTacticsRecordRequest {
-  repeated tcnapi.exile.core.v2.Record records = 1;
+message AddRecordToJourneyBufferRequest {
+  tcnapi.exile.core.v2.Record record = 1;
 }
 
-message AddTacticsRecordResponse {
-  // number of records from the request that were inserted
-  int64 inserted_count = 1;
-  // number of records from the request that replaced an existing record
-  // that matched on pool_id, and record_id
-  int64 updated_count = 2;
-  // number of records that were exact duplicates of existing record in the collection
-  int64 ignored_count = 3;
-  // number of records from request that were malformed in some way
-  int64 rejected_count = 4;
-  // the record ids that were rejected from the request
-  repeated string rejected_record_ids = 5;
-  // if rejected_count is greater than 0
-  // this will contain a reason why records were rejected
-  string reject_msg = 6;
-  // the total number of records that are in the tactics collection after this request
-  int64 collection_size = 7;
+message AddRecordToJourneyBufferResponse {
+  Status status = 1;
+  string server_message = 2;
+
+  enum Status {
+    INSERTED = 0;
+    UPDATED = 1;
+    IGNORED = 2;
+    REJECTED = 3;
+  }
 }
