@@ -306,6 +306,12 @@ service GateService {
       body: "*"
     };
   }
+  rpc AddRecordToJourneyBuffer(AddRecordToJourneyBufferRequest) returns (AddRecordToJourneyBufferResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/add_record_to_journey_buffer"
+      body: "*"
+    };
+  }
 }
 
 // TimeRange represents an inclusive time interval for filtering logs.
@@ -1418,4 +1424,19 @@ message ListSearchableRecordingFieldsRequest {}
  */
 message ListSearchableRecordingFieldsResponse {
   repeated string fields = 1;
+}
+
+message AddRecordToJourneyBufferRequest {
+  tcnapi.exile.core.v2.Record record = 1;
+}
+
+message AddRecordToJourneyBufferResponse {
+  Status status = 1;
+
+  enum Status {
+    INSERTED = 0;
+    UPDATED = 1;
+    IGNORED = 2;
+    REJECTED = 3;
+  }
 }
