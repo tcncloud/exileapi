@@ -1427,7 +1427,6 @@ message GetVoiceRecordingDownloadLinkRequest {
   // the offset from the end of the recording to get the link for
   // must be from the recording segments returned from the ListRecordingSegmentsRequest
   google.protobuf.Duration end_offset = 2;
-
 }
 
 /**
