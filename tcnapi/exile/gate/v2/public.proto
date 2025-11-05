@@ -1376,6 +1376,7 @@ message CreateRecordingLabelResponse {}
 message ListRecordingSegmentsRequest {
   // the recording we are fetching segments for
   string recording_name = 1;
+  repeated SearchOption search_options = 2;
 }
 message ListRecordingSegmentsResponse {
   repeated RecordingSegment segments = 1;
