@@ -1391,8 +1391,8 @@ message Recording {
   string recording_id = 1; // The fully qualified resource name of the recording. Format: "orgs/{org}/regions/{region}/zones/{zone}/recordings/{recording}"
   int64 call_sid = 2; // The unique identifier of the call recorded.
   CallType call_type = 3; // The type of call recorded.
-  google.protobuf.Duration start_offset = 1;
-  google.protobuf.Duration end_offset = 2;
+  google.protobuf.Duration start_offset = 10;
+  google.protobuf.Duration end_offset = 11;
   google.protobuf.Timestamp start_time = 9; // The start time of the recording.
 }
 
