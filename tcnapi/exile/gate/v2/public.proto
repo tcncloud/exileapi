@@ -1399,6 +1399,8 @@ message SearchVoiceRecordingsResponse {
 message RecordingSegment {
   google.protobuf.Duration start_offset = 1;
   google.protobuf.Duration end_offset = 2;
+  string key = 3;
+  string value = 4;
 }
 
 /**
