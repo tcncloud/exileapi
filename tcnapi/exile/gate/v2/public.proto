@@ -306,9 +306,6 @@ service GateService {
       body: "*"
     };
   }
-  rpc ListRecordingSegments(ListRecordingSegmentsRequest) returns (ListRecordingSegmentsResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/gate/v2/list_recording_segments"};
-  }
   rpc Transfer(TransferRequest) returns (TransferResponse) {
     option (google.api.http) = {
       get: "/tcnapi/exile/gate/v2/transfer"
@@ -1373,15 +1370,6 @@ message CreateRecordingLabelRequest {
 }
 message CreateRecordingLabelResponse {}
 
-message ListRecordingSegmentsRequest {
-  // the recording we are fetching segments for
-  string recording_name = 1;
-  repeated SearchOption search_options = 2;
-}
-message ListRecordingSegmentsResponse {
-  repeated RecordingSegment segments = 1;
-}
-
 /**
  * Request message for searching voice recordings.
  */
@@ -1396,27 +1384,16 @@ message SearchVoiceRecordingsResponse {
   repeated Recording recordings = 1;
 }
 
-message RecordingSegment {
-  google.protobuf.Duration start_offset = 1;
-  google.protobuf.Duration end_offset = 2;
-  string key = 3;
-  string value = 4;
-}
-
 /**
  * Message representing a voice recording.
  */
 message Recording {
-  string name = 1; // The fully qualified resource name of the recording. Format: "orgs/{org}/regions/{region}/zones/{zone}/recordings/{recording}"
+  string recording_id = 1; // The fully qualified resource name of the recording. Format: "orgs/{org}/regions/{region}/zones/{zone}/recordings/{recording}"
   int64 call_sid = 2; // The unique identifier of the call recorded.
   CallType call_type = 3; // The type of call recorded.
-  google.protobuf.Duration duration = 4; // The duration of the recording.
-  string agent_phone = 5; // The phone number of the agent.
-  string client_phone = 6; // The phone number of the client.
-  string campaign = 7; // The name of the campaign.
-  RecordingType recording_type = 8; // The type of the recording.
+  google.protobuf.Duration start_offset = 1;
+  google.protobuf.Duration end_offset = 2;
   google.protobuf.Timestamp start_time = 9; // The start time of the recording.
-  repeated string partner_agent_ids = 10; // The user IDs of participating agents.
 }
 
 /**
