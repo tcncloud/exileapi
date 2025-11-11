@@ -1401,7 +1401,7 @@ message Recording {
   string client_phone = 14;
   string campaign = 15;
   // The user IDs of participating agents, if available
-  repeated string partner_agent_ids = 16; 
+  repeated string partner_agent_ids = 16;
 }
 
 /**
