@@ -1394,6 +1394,14 @@ message Recording {
   google.protobuf.Duration start_offset = 10;
   google.protobuf.Duration end_offset = 11;
   google.protobuf.Timestamp start_time = 9; // The start time of the recording.
+  // the duration of the full recording if offsets are null.
+  // otherwise the duration of the offset. end_offset - start_offset.
+  google.protobuf.Duration duration = 12;
+  string agent_phone = 13;
+  string client_phone = 14;
+  string campaign = 15;
+  // The user IDs of participating agents, if available
+  repeated string partner_agent_ids = 16; 
 }
 
 /**
