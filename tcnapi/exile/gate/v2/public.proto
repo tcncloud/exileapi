@@ -1402,6 +1402,10 @@ message Recording {
   string campaign = 15;
   // The user IDs of participating agents, if available
   repeated string partner_agent_ids = 16;
+  // The label of the recording segement
+  string label = 17;
+  // The value of the recording segment label.
+  string value = 18;
 }
 
 /**
