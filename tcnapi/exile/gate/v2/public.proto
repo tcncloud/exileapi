@@ -318,6 +318,19 @@ service GateService {
       body: "*"
     };
   }
+  rpc MuteAgent(MuteAgentRequest) returns (MuteAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/mute"
+      body: "*"
+    };
+  }
+  
+  rpc UnmuteAgent(UnmuteAgentRequest) returns (UnmuteAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/unmute"
+      body: "*"
+    };
+  }
 }
 
 // TimeRange represents an inclusive time interval for filtering logs.
@@ -1468,3 +1481,13 @@ message AddRecordToJourneyBufferResponse {
     REJECTED = 3;
   }
 }
+
+message MuteAgentRequest {
+  string partner_agent_id = 1;
+}
+message MuteAgentResponse {}
+
+message UnmuteAgentRequest {
+  string partner_agent_id = 1;
+}
+message UnmuteAgentResponse {}
