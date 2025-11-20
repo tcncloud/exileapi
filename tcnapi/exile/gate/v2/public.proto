@@ -324,7 +324,7 @@ service GateService {
       body: "*"
     };
   }
-  
+
   rpc UnmuteAgent(UnmuteAgentRequest) returns (UnmuteAgentResponse) {
     option (google.api.http) = {
       post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/unmute"
