@@ -939,6 +939,7 @@ message Event {
     ExileAgentResponse agent_response = 12; // Event related to an agent response
     ExileTransferInstance transfer_instance = 13; // Event related to a transfer instance
     ExileCallRecording call_recording = 14; // Event related to a call recording
+    ExileTask task = 15; // Event related to a task
   }
 }
 

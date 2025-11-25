@@ -128,6 +128,40 @@ message ExileTelephonyResult {
   }
 }
 
+message ExileTask {
+  int64 task_sid = 1;
+  int64 task_group_sid = 2;
+
+  repeated google.protobuf.Value task_data_keys = 3;
+  repeated google.protobuf.Value task_data_values = 4;
+
+  google.protobuf.Timestamp create_time = 5;
+  google.protobuf.Timestamp update_time = 6;
+
+  string pool_id = 7;
+  string record_id = 8;
+
+  TaskStatus status = 9;
+  ExileTelephonyResult.Result result = 10;
+
+  int64 attempts = 11;
+
+  int64 client_sid = 12;
+  string org_id = 13;
+
+  enum TaskStatus {
+    TASK_UNKNOWN = 0;
+    TASK_SCHEDULED = 2100; // "TASK_SCHEDULED", "Task is waiting for scheduler"),
+    TASK_WAITING = 2110; // "TASK_WAITING", "Task was running and is waiting to send next call"),
+    TASK_PREPARING = 2120; // "TASK_PREPARING", " Task is currently beeing prepared by the scheduler"),
+    TASK_RUNNING = 2200; // "TASK_RUNNING", "Task is currently executing calls"),
+    TASK_COMPLETED = 2300; // "TASK_COMPLETED", "Task was completed normally"),
+    TASK_CANCELLED_TIMEOUT = 2310; // "TASK_CANCELLED_TIMEOUT", "Task was cancelled due to time restrictions"),
+    TASK_CANCELLED_USER = 2320; // "TASK_CANCELLED_USER", "Task was cancelled by login belonging to client"),
+    TASK_CANCELLED_ADMIN = 2330; // "TASK_CANCELLED_ADMIN", "Task was cancelled by some login not belonging to client
+  }
+}
+
 message ExileAgentResponse {
   int64 agent_call_response_sid = 1;
   int64 call_sid = 2;
