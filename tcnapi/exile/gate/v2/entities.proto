@@ -132,9 +132,6 @@ message ExileTask {
   int64 task_sid = 1;
   int64 task_group_sid = 2;
 
-  repeated google.protobuf.Value task_data_keys = 3;
-  repeated google.protobuf.Value task_data_values = 4;
-
   google.protobuf.Timestamp create_time = 5;
   google.protobuf.Timestamp update_time = 6;
 
@@ -142,7 +139,6 @@ message ExileTask {
   string record_id = 8;
 
   TaskStatus status = 9;
-  ExileTelephonyResult.Result result = 10;
 
   int64 attempts = 11;
 
