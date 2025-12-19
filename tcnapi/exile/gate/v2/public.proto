@@ -1440,6 +1440,7 @@ message GetVoiceRecordingDownloadLinkRequest {
  */
 message GetVoiceRecordingDownloadLinkResponse {
   string download_link = 1; // The download link for the recording
+  string playback_link = 2; // redirect to wfo to play the recording
 }
 
 message SearchOption {
