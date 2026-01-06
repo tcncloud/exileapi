@@ -170,6 +170,35 @@ service GateService {
       body: "*"
     };
   }
+
+  rpc HoldTransferMemberCaller(HoldTransferMemberCallerRequest) returns (HoldTransferMemberCallerResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/hold_transfer_caller"
+      body: "*"
+    };
+  }
+
+  rpc UnholdTransferMemberCaller(UnholdTransferMemberCallerRequest) returns (UnholdTransferMemberCallerResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/unhold_transfer_caller"
+      body: "*"
+    };
+  }
+
+  rpc HoldTransferMemberAgent(HoldTransferMemberAgentRequest) returns (HoldTransferMemberAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/hold_transfer_agent"
+      body: "*"
+    };
+  }
+
+  rpc UnholdTransferMemberAgent(UnholdTransferMemberAgentRequest) returns (UnholdTransferMemberAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/unhold_transfer_agent"
+      body: "*"
+    };
+  }
+
   /**
    * Call control operations
    * These methods provide telephony functionality for making and managing calls.
@@ -1337,6 +1366,26 @@ message TakeCallOffSimpleHoldRequest {
   string partner_agent_id = 2;
 }
 message TakeCallOffSimpleHoldResponse {}
+
+message HoldTransferMemberCallerRequest {
+  string partner_agent_id = 1;
+}
+message HoldTransferMemberCallerResponse {}
+
+message UnholdTransferMemberCallerRequest {
+  string partner_agent_id = 1;
+}
+message UnholdTransferMemberCallerResponse {}
+
+message HoldTransferMemberAgentRequest {
+  string partner_agent_id = 1;
+}
+message HoldTransferMemberAgentResponse {}
+
+message UnholdTransferMemberAgentRequest {
+  string partner_agent_id = 1;
+}
+message UnholdTransferMemberAgentResponse {}
 
 /**
  * Message representing agent information.
