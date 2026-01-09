@@ -164,6 +164,7 @@ service GateService {
     };
   }
 
+  // Take a call off simple hold
   rpc TakeCallOffSimpleHold(TakeCallOffSimpleHoldRequest) returns (TakeCallOffSimpleHoldResponse) {
     option (google.api.http) = {
       post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/take_call_off_simple_hold"
@@ -171,30 +172,34 @@ service GateService {
     };
   }
 
+  // Hold a caller on a transfer
   rpc HoldTransferMemberCaller(HoldTransferMemberCallerRequest) returns (HoldTransferMemberCallerResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/hold_transfer_caller"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/hold_transfer_caller"
       body: "*"
     };
   }
 
+  // Unhold a caller on a transfer
   rpc UnholdTransferMemberCaller(UnholdTransferMemberCallerRequest) returns (UnholdTransferMemberCallerResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/unhold_transfer_caller"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/unhold_transfer_caller"
       body: "*"
     };
   }
 
+  // Hold an agent on a transfer
   rpc HoldTransferMemberAgent(HoldTransferMemberAgentRequest) returns (HoldTransferMemberAgentResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/hold_transfer_agent"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/hold_transfer_agent"
       body: "*"
     };
   }
 
+  // Unhold an agent on a transfer
   rpc UnholdTransferMemberAgent(UnholdTransferMemberAgentRequest) returns (UnholdTransferMemberAgentResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id}/unhold_transfer_agent"
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/unhold_transfer_agent"
       body: "*"
     };
   }
