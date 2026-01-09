@@ -164,12 +164,46 @@ service GateService {
     };
   }
 
+  // Take a call off simple hold
   rpc TakeCallOffSimpleHold(TakeCallOffSimpleHoldRequest) returns (TakeCallOffSimpleHoldResponse) {
     option (google.api.http) = {
       post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/take_call_off_simple_hold"
       body: "*"
     };
   }
+
+  // Hold a caller on a transfer
+  rpc HoldTransferMemberCaller(HoldTransferMemberCallerRequest) returns (HoldTransferMemberCallerResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/hold_transfer_caller"
+      body: "*"
+    };
+  }
+
+  // Unhold a caller on a transfer
+  rpc UnholdTransferMemberCaller(UnholdTransferMemberCallerRequest) returns (UnholdTransferMemberCallerResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/unhold_transfer_caller"
+      body: "*"
+    };
+  }
+
+  // Hold an agent on a transfer
+  rpc HoldTransferMemberAgent(HoldTransferMemberAgentRequest) returns (HoldTransferMemberAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/hold_transfer_agent"
+      body: "*"
+    };
+  }
+
+  // Unhold an agent on a transfer
+  rpc UnholdTransferMemberAgent(UnholdTransferMemberAgentRequest) returns (UnholdTransferMemberAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/agents/{partner_agent_id=partner_agent_id}/unhold_transfer_agent"
+      body: "*"
+    };
+  }
+
   /**
    * Call control operations
    * These methods provide telephony functionality for making and managing calls.
@@ -1337,6 +1371,26 @@ message TakeCallOffSimpleHoldRequest {
   string partner_agent_id = 2;
 }
 message TakeCallOffSimpleHoldResponse {}
+
+message HoldTransferMemberCallerRequest {
+  string partner_agent_id = 1;
+}
+message HoldTransferMemberCallerResponse {}
+
+message UnholdTransferMemberCallerRequest {
+  string partner_agent_id = 1;
+}
+message UnholdTransferMemberCallerResponse {}
+
+message HoldTransferMemberAgentRequest {
+  string partner_agent_id = 1;
+}
+message HoldTransferMemberAgentResponse {}
+
+message UnholdTransferMemberAgentRequest {
+  string partner_agent_id = 1;
+}
+message UnholdTransferMemberAgentResponse {}
 
 /**
  * Message representing agent information.
