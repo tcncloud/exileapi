@@ -89,6 +89,28 @@ service GateService {
       body: "*"
     };
   }
+  /**
+   * Streams jobs from the server, but expects the client to acknowledge or reject
+   * every job sent.
+   * if the client disconnects the stream before acknowledging or rejecting a job,
+   * the pending jobs will be sent to some other connected client.
+   */
+  rpc StreamJobsWithAck(stream StreamJobsWithAckRequest) returns (stream StreamJobsWithAckResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/stream_jobs_with_ack"
+      body: "*"
+    };
+  }
+  /**
+   * receives events from the server like PollEvents,
+   * but expects the client to acknowledge events that have/will be processed.
+   */
+  rpc PollEventsWithAck(PollEventsWithAckRequest) returns (PollEventsWithAckResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v2/poll_events_with_ack"
+      body: "*"
+    };
+  }
 
   /**
    * Job results submission (max 2MB)
@@ -363,6 +385,58 @@ message PollEventsRequest {
  */
 message PollEventsResponse {
   repeated Event events = 1; // List of events (telephony results, agent calls, agent responses)
+}
+
+message PollEventsWithAckRequest {
+  // list of event ids to acknowledge that the client has/will process.
+  // Initial message it is ok for this field to be empty.
+  // Every request that follows a response from the server
+  // expects a message this field to be populated to remove
+  // pending status on the event from the server.
+  repeated string ack_event_ids = 1;
+  // how many events we are requesting to work on.
+  // if zero a default will be used.
+  int32 event_count = 2;
+  // if true, the client is letting the server know we are disconnecting the stream.
+  bool disconnect = 3;
+}
+message PollEventsWithAckResponse {
+  repeated Event events = 1;
+}
+
+message StreamJobsWithAckRequest {
+  // tells the server that the client acknowledges this job and will work on it.
+  // initial request it is ok for this field to be empty.
+  string job_id = 1;
+  // if true, the server will give the job to someone else.
+  // the first connection to the server ignores this field.
+  bool reject = 2;
+  // if true, the client is letting the server know we are disconnecting the stream.
+  bool disconnect = 3;
+}
+
+message StreamJobsWithAckResponse {
+  // Unique identifier for the job
+  string job_id = 1;
+
+  // Different task types that can be requested
+  oneof task {
+    ListPoolsRequest list_pools = 10; // Request to list available pools
+    GetPoolStatusRequest get_pool_status = 11; // Request to get status of a specific pool
+    GetPoolRecordsRequest get_pool_records = 12; // Request to get records from a pool
+    SearchRecordsRequest search_records = 13; // Request to search for records
+    GetRecordFieldsRequest get_record_fields = 14; // Request to get field values from a record
+    SetRecordFieldsRequest set_record_fields = 15; // Request to update field values in a record
+    CreatePaymentRequest create_payment = 16; // Request to create a payment
+    PopAccountRequest pop_account = 17; // Request to pop an account for an agent
+    ExecuteLogicRequest execute_logic = 18; // Request to execute a logic block
+    InfoRequest info = 100; // Request for system information
+    SeppukuRequest shutdown = 101; // Request to shut down the client
+    LoggingRequest logging = 102; // Request related to logging
+    DiagnosticsRequest diagnostics = 103; // Request for diagnostics
+    ListTenantLogsRequest list_tenant_logs = 104; // Request to list tenant logs
+    SetLogLevelRequest set_log_level = 105; // Request to set log level for a specific logger
+  }
 }
 
 /**
