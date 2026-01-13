@@ -76,6 +76,7 @@ service GateService {
       post: "/tcnapi/exile/gate/v2/poll_events"
       body: "*"
     };
+    option deprecated = true;
   }
 
   /**
@@ -88,6 +89,7 @@ service GateService {
       post: "/tcnapi/exile/gate/v2/stream_jobs"
       body: "*"
     };
+    option deprecated = true;
   }
   /**
    * Streams jobs from the server, but expects the client to acknowledge or reject
@@ -412,8 +414,8 @@ message JobQueueStreamResponse {
   // Unique identifier for the job
   string job_id = 1;
 
-  // Different task types that can be requested
-  oneof task {
+  // Different job types that can be requested from the server
+  oneof job {
     ListPoolsRequest list_pools = 10; // Request to list available pools
     GetPoolStatusRequest get_pool_status = 11; // Request to get status of a specific pool
     GetPoolRecordsRequest get_pool_records = 12; // Request to get records from a pool
@@ -445,7 +447,8 @@ message StreamJobsRequest {}
 message StreamJobsResponse {
   string job_id = 1; // Unique identifier for the job
 
-  // Different task types that can be requested
+  // NOTE: this oneof should be named job instead of task.
+  // Different job types that can be requested
   oneof task {
     ListPoolsRequest list_pools = 10; // Request to list available pools
     GetPoolStatusRequest get_pool_status = 11; // Request to get status of a specific pool
