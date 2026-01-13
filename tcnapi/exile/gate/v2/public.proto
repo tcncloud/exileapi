@@ -105,9 +105,9 @@ service GateService {
    * receives events from the server like PollEvents,
    * but expects the client to acknowledge events that have/will be processed.
    */
-  rpc SyncEventsStream(SyncEventsStreamRequest) returns (SyncEventsStreamResponse) {
+  rpc EventStream(EventStreamRequest) returns (EventStreamResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/sync_events_stream"
+      post: "/tcnapi/exile/gate/v2/event_stream"
       body: "*"
     };
   }
@@ -387,7 +387,7 @@ message PollEventsResponse {
   repeated Event events = 1; // List of events (telephony results, agent calls, agent responses)
 }
 
-message SyncEventsStreamRequest {
+message EventStreamRequest {
   // list of event ids to acknowledge that the client has/will process.
   // Initial message it is ok for this field to be empty.
   // Every request that follows a response from the server
@@ -398,7 +398,7 @@ message SyncEventsStreamRequest {
   // if zero a default will be used.
   int32 event_count = 2;
 }
-message SyncEventsStreamResponse {
+message EventStreamResponse {
   repeated Event events = 1;
 }
 
