@@ -95,9 +95,9 @@ service GateService {
    * if the client disconnects the stream before acknowledging or rejecting a job,
    * the pending jobs will be sent to some other connected client.
    */
-  rpc StreamJobsWithAck(stream StreamJobsWithAckRequest) returns (stream StreamJobsWithAckResponse) {
+  rpc JobQueueStream(stream JobQueueStreamRequest) returns (stream JobQueueStreamResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/stream_jobs_with_ack"
+      post: "/tcnapi/exile/gate/v2/job_queue_stream"
       body: "*"
     };
   }
@@ -105,9 +105,9 @@ service GateService {
    * receives events from the server like PollEvents,
    * but expects the client to acknowledge events that have/will be processed.
    */
-  rpc PollEventsWithAck(PollEventsWithAckRequest) returns (PollEventsWithAckResponse) {
+  rpc SyncEventsStream(SyncEventsStreamRequest) returns (SyncEventsStreamResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/gate/v2/poll_events_with_ack"
+      post: "/tcnapi/exile/gate/v2/sync_events_stream"
       body: "*"
     };
   }
@@ -387,7 +387,7 @@ message PollEventsResponse {
   repeated Event events = 1; // List of events (telephony results, agent calls, agent responses)
 }
 
-message PollEventsWithAckRequest {
+message SyncEventsStreamRequest {
   // list of event ids to acknowledge that the client has/will process.
   // Initial message it is ok for this field to be empty.
   // Every request that follows a response from the server
@@ -397,25 +397,18 @@ message PollEventsWithAckRequest {
   // how many events we are requesting to work on.
   // if zero a default will be used.
   int32 event_count = 2;
-  // if true, the client is letting the server know we are disconnecting the stream.
-  bool disconnect = 3;
 }
-message PollEventsWithAckResponse {
+message SyncEventsStreamResponse {
   repeated Event events = 1;
 }
 
-message StreamJobsWithAckRequest {
+message JobQueueStreamRequest {
   // tells the server that the client acknowledges this job and will work on it.
   // initial request it is ok for this field to be empty.
   string job_id = 1;
-  // if true, the server will give the job to someone else.
-  // the first connection to the server ignores this field.
-  bool reject = 2;
-  // if true, the client is letting the server know we are disconnecting the stream.
-  bool disconnect = 3;
 }
 
-message StreamJobsWithAckResponse {
+message JobQueueStreamResponse {
   // Unique identifier for the job
   string job_id = 1;
 
