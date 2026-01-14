@@ -445,27 +445,7 @@ message JobQueueStreamRequest {
 }
 
 message JobQueueStreamResponse {
-  // Unique identifier for the job
-  string job_id = 1;
-
-  // Different job types that can be requested from the server
-  oneof job {
-    ListPoolsRequest list_pools = 10; // Request to list available pools
-    GetPoolStatusRequest get_pool_status = 11; // Request to get status of a specific pool
-    GetPoolRecordsRequest get_pool_records = 12; // Request to get records from a pool
-    SearchRecordsRequest search_records = 13; // Request to search for records
-    GetRecordFieldsRequest get_record_fields = 14; // Request to get field values from a record
-    SetRecordFieldsRequest set_record_fields = 15; // Request to update field values in a record
-    CreatePaymentRequest create_payment = 16; // Request to create a payment
-    PopAccountRequest pop_account = 17; // Request to pop an account for an agent
-    ExecuteLogicRequest execute_logic = 18; // Request to execute a logic block
-    InfoRequest info = 100; // Request for system information
-    SeppukuRequest shutdown = 101; // Request to shut down the client
-    LoggingRequest logging = 102; // Request related to logging
-    DiagnosticsRequest diagnostics = 103; // Request for diagnostics
-    ListTenantLogsRequest list_tenant_logs = 104; // Request to list tenant logs
-    SetLogLevelRequest set_log_level = 105; // Request to set log level for a specific logger
-  }
+  StreamJobsResponse job = 1; // Job payload for the stream
 }
 
 /**
@@ -1381,6 +1361,7 @@ message GetAgentStatusResponse {
   AgentState agent_state = 10; // Current state of the agent
   int64 current_session_id = 11; // Current session ID if applicable
   ConnectedParty connected_party = 12; // Information about connected party if on call
+  bool agent_is_muted = 13; // Whether the agent is muted
 }
 
 /**
