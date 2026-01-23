@@ -107,7 +107,7 @@ service GateService {
    * receives events from the server like PollEvents,
    * but expects the client to acknowledge events that have/will be processed.
    */
-  rpc EventStream(EventStreamRequest) returns (EventStreamResponse) {
+  rpc EventStream(stream EventStreamRequest) returns (stream EventStreamResponse) {
     option (google.api.http) = {
       post: "/tcnapi/exile/gate/v2/event_stream"
       body: "*"
