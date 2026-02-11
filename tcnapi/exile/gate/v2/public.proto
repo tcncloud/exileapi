@@ -1017,6 +1017,8 @@ message SubmitJobResultsResponse {}
  * Events can be agent calls, telephony results, or agent responses.
  */
 message Event {
+  string exile_entity_id = 1;
+
   oneof entity {
     ExileAgentCall agent_call = 10; // Event related to an agent call
     ExileTelephonyResult telephony_result = 11; // Event related to telephony results
