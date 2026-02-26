@@ -72,6 +72,8 @@ message ExileTelephonyResult {
   //   string partner_agent_id = 100;
   repeated google.protobuf.Value task_data_keys = 20;
   repeated google.protobuf.Value task_data_values = 21;
+  // if set, a task is scheduled to run at this time
+  google.protobuf.Timestamp task_waiting_until = 22;
   enum Result {
     RESULT_UNKNOWN = 0;
     PENDING = 1000;
