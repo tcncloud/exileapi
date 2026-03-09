@@ -74,6 +74,9 @@ message ExileTelephonyResult {
   repeated google.protobuf.Value task_data_values = 21;
   // if set, a task is scheduled to run at this time
   google.protobuf.Timestamp task_waiting_until = 22;
+  // if set, this is a queued callback resume and these reference the original call
+  int64 old_call_sid = 23;
+  string old_call_type = 24;
   enum Result {
     RESULT_UNKNOWN = 0;
     PENDING = 1000;
