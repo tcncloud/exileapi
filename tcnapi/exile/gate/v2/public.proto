@@ -1458,6 +1458,9 @@ message Agent {
   int64 current_session_id = 7; // Current session ID
   AgentState agent_state = 8; // Current agent state
   bool is_logged_in = 9; // Is agent active
+  string call_sid = 10;
+  CallType call_type = 11;
+  bool is_recording = 12;
 }
 
 message ListSkillsRequest {}
