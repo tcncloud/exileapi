@@ -1364,6 +1364,7 @@ message GetAgentStatusResponse {
   int64 current_session_id = 11; // Current session ID if applicable
   ConnectedParty connected_party = 12; // Information about connected party if on call
   bool agent_is_muted = 13; // Whether the agent is muted
+  bool is_recording = 14; // Whether the agent's call is being recorded
 }
 
 /**
@@ -1396,6 +1397,7 @@ message UpdateAgentStatusResponse {}
 message ListAgentsRequest {
   optional bool logged_in = 1; // optional filter to return only logged-in agent
   optional AgentState state = 2; // optional filter to return only agents in the specified state
+  bool fetch_recording_status = 3; // if true, fetch recording status for each agent (may be expensive)
 }
 
 /**
@@ -1458,6 +1460,9 @@ message Agent {
   int64 current_session_id = 7; // Current session ID
   AgentState agent_state = 8; // Current agent state
   bool is_logged_in = 9; // Is agent active
+  bool agent_is_muted = 10; // Whether the agent is muted
+  ConnectedParty connected_party = 11; // Information about connected party if on call
+  bool is_recording = 12; // Whether the agent's call is being recorded (only populated if fetch_recording_status was requested)
 }
 
 message ListSkillsRequest {}
