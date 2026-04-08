@@ -6,7 +6,7 @@
 //   - Filter.Operator unified with SearchOption.Operator
 //   - Duration fields use google.protobuf.Duration
 //   - Skill.proficiency marked optional
-//   - AgentEvent/CallerEvent skill maps use consistent types
+//   - Removed unused AgentEvent/CallerEvent (orphaned in v2 too)
 //   - Result enum categorized into outcome + detail
 
 syntax = "proto3";
@@ -169,21 +169,6 @@ enum AgentState {
   AGENT_STATE_SUSPENDED = 16;
   AGENT_STATE_EXTERNAL_TRANSFER = 17;
   AGENT_STATE_CALLBACK_SUSPENDED = 18;
-}
-
-enum CallerState {
-  CALLER_STATE_UNSPECIFIED = 0;
-  CALLER_STATE_IDLE = 1;
-  CALLER_STATE_READY = 2;
-  CALLER_STATE_HUNGUP = 3;
-  CALLER_STATE_PEERED = 4;
-  CALLER_STATE_VOICEMAIL = 5;
-  CALLER_STATE_OUTBOUND_LOCKED = 6;
-  CALLER_STATE_OUTBOUND_PEERED = 7;
-  CALLER_STATE_CALLBACK_SUSPENDED = 8;
-  CALLER_STATE_TRANSFER_WARM_PENDING = 9;
-  CALLER_STATE_TRANSFER_WARM_ACTIVE = 10;
-  CALLER_STATE_TRANSFER_COLD_ACTIVE = 11;
 }
 
 // ---------------------------------------------------------------------------
@@ -424,66 +409,6 @@ message Agent {
     CallType call_type = 2;
     bool is_inbound = 3;
   }
-}
-
-// ---------------------------------------------------------------------------
-// Real-time events
-// ---------------------------------------------------------------------------
-
-message AgentEvent {
-  string channel = 1;
-  AgentState old_state = 2;
-  AgentState new_state = 3;
-  google.protobuf.Timestamp state_changed = 4;
-  string tenant_id = 5;
-  string server = 6;
-  string agent_id = 7;
-  int64 state_age = 8;
-  google.protobuf.Timestamp timestamp = 9;
-  string timer = 10;
-  int64 timer_value = 11;
-  string hunt_group_id = 12;
-  string current_session_id = 13;
-  bool monitoring = 14;
-  int64 calls_count = 15;
-  string caller_id = 16;
-  string dnid = 17;
-  string intercom_peer_id = 18;
-  int64 peer_call_id = 19;
-  CallType peer_call_type = 20;
-  int32 last_sip_code = 21;
-  string last_sip_message = 22;
-
-  // Unified skill map type. v2 used int64 for AgentEvent and bool for
-  // CallerEvent which was inconsistent. Now consistently uses proficiency
-  // level (0 = present but no proficiency, >0 = proficiency score).
-  map<string, int64> skills = 30;
-  map<string, int64> all_skills = 31;
-}
-
-message CallerEvent {
-  string channel = 1;
-  CallerState old_state = 2;
-  CallerState new_state = 3;
-  google.protobuf.Timestamp state_changed = 4;
-  string tenant_id = 5;
-  string server = 6;
-  string agent_id = 7;
-  int64 state_age = 8;
-  google.protobuf.Timestamp timestamp = 9;
-  string timer = 10;
-  int64 timer_value = 11;
-  string hunt_group_id = 12;
-  string current_session_id = 13;
-  bool monitoring = 14;
-  int64 calls_count = 15;
-  string caller_id = 16;
-  string dnid = 17;
-  CallType call_type = 18;
-
-  // Consistent with AgentEvent — int64 proficiency level.
-  map<string, int64> skills = 30;
-  map<string, int64> all_skills = 31;
 }
 
 // ---------------------------------------------------------------------------

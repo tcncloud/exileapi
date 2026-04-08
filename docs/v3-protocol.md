@@ -531,9 +531,9 @@ enum TransferInitiation {
 
 v2 used a non-optional `int64 proficiency` — impossible to distinguish "not assigned" from "proficiency = 0". v3 marks it `optional`.
 
-### Skill map types unified
+### AgentEvent/CallerEvent removed
 
-v2 used `map<string, int64>` on `AgentEvent` but `map<string, bool>` on `CallerEvent` for the same concept. v3 uses `map<string, int64>` consistently (proficiency level).
+`AgentEvent` and `CallerEvent` were defined in `gate/v2/entities.proto` but never referenced in any v2 RPC, message, or client code. They were orphaned definitions. v3 drops them entirely.
 
 ### Config payload typed
 
