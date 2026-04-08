@@ -1,0 +1,528 @@
+// Shared entity types for the Exile platform.
+//
+// This package fixes several design issues from core/v2 and gate/v2:
+//   - Parallel arrays (task_data_keys/values) replaced with repeated TaskData
+//   - call_type changed from string to CallType enum
+//   - Filter.Operator unified with SearchOption.Operator
+//   - Duration fields use google.protobuf.Duration
+//   - Skill.proficiency marked optional
+//   - AgentEvent/CallerEvent skill maps use consistent types
+//   - Result enum categorized into outcome + detail
+
+syntax = "proto3";
+
+package tcnapi.exile.types.v3;
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/types/v3;typesv3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// ---------------------------------------------------------------------------
+// Core data types
+// ---------------------------------------------------------------------------
+
+message Pool {
+  string pool_id = 1;
+  string description = 2;
+  PoolStatus status = 3;
+  int64 record_count = 4;
+
+  enum PoolStatus {
+    POOL_STATUS_UNSPECIFIED = 0;
+    POOL_STATUS_READY = 1;
+    POOL_STATUS_NOT_READY = 2;
+    POOL_STATUS_BUSY = 3;
+  }
+}
+
+message Record {
+  string pool_id = 1;
+  string record_id = 2;
+  // Structured payload instead of raw JSON string.
+  // Consumers that need raw JSON can use google.protobuf.Struct's JSON mapping.
+  google.protobuf.Struct payload = 3;
+}
+
+message Field {
+  string field_name = 1;
+  string field_value = 2;
+  string pool_id = 3;
+  string record_id = 4;
+}
+
+// Replaces the parallel arrays (task_data_keys + task_data_values) antipattern.
+// Each entry is a self-contained key-value pair.
+message TaskData {
+  string key = 1;
+  google.protobuf.Value value = 2;
+}
+
+// Unified filter with full operator set. Replaces both core.v2.Filter
+// (which only had EQUAL) and gate.v2.SearchOption (which had a partial set).
+message Filter {
+  string field = 1;
+  Operator operator = 2;
+  string value = 3;
+
+  enum Operator {
+    OPERATOR_UNSPECIFIED = 0;
+    OPERATOR_EQUAL = 1;
+    OPERATOR_NOT_EQUAL = 2;
+    OPERATOR_CONTAINS = 3;
+    OPERATOR_GREATER_THAN = 4;
+    OPERATOR_LESS_THAN = 5;
+    OPERATOR_IN = 6;
+    OPERATOR_EXISTS = 7;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Call & telephony enums
+// ---------------------------------------------------------------------------
+
+// Strongly typed call type. Replaces the raw string field in v2 entities.
+enum CallType {
+  CALL_TYPE_UNSPECIFIED = 0;
+  CALL_TYPE_INBOUND = 1;
+  CALL_TYPE_OUTBOUND = 2;
+  CALL_TYPE_PREVIEW = 3;
+  CALL_TYPE_MANUAL = 4;
+  CALL_TYPE_MAC = 5;
+}
+
+// Telephony call outcome, split into category + detail for easier handling.
+// Replaces the 60+ flat Result enum from v2.
+message TelephonyOutcome {
+  Category category = 1;
+  Detail detail = 2;
+
+  enum Category {
+    CATEGORY_UNSPECIFIED = 0;
+    CATEGORY_ANSWERED = 1;
+    CATEGORY_NO_ANSWER = 2;
+    CATEGORY_BUSY = 3;
+    CATEGORY_MACHINE = 4;
+    CATEGORY_INVALID = 5;
+    CATEGORY_FAILED = 6;
+    CATEGORY_CANCELED = 7;
+    CATEGORY_PENDING = 8;
+  }
+
+  // Fine-grained detail within a category. Not all details apply to all
+  // categories. Consumers should switch on category first, then detail.
+  enum Detail {
+    DETAIL_UNSPECIFIED = 0;
+    DETAIL_GENERIC = 1;
+    // Answered details
+    DETAIL_LINKCALL = 2;
+    DETAIL_LINKCALL_NO_AGENT = 3;
+    DETAIL_MACHINE_HANGUP = 4;
+    DETAIL_MACHINE_DELIVERED = 5;
+    // No-answer details
+    DETAIL_NO_ANSWER_TIMEOUT = 6;
+    // Invalid details
+    DETAIL_INVALID_SIP_INVITE = 7;
+    DETAIL_INVALID_DESTINATION = 8;
+    DETAIL_DISCONNECTED_NUMBER = 9;
+    // Failed details
+    DETAIL_DNC_CHECK_PERSONAL = 10;
+    DETAIL_DNC_CHECK_NATIONAL = 11;
+    DETAIL_COMPLIANCE_BLOCK = 12;
+    DETAIL_CARRIER_REJECT = 13;
+    DETAIL_INTERNAL_ERROR = 14;
+    // Canceled details
+    DETAIL_AGENT_CANCEL = 15;
+    DETAIL_SYSTEM_CANCEL = 16;
+  }
+}
+
+enum TelephonyStatus {
+  TELEPHONY_STATUS_UNSPECIFIED = 0;
+  TELEPHONY_STATUS_SCHEDULED = 1;
+  TELEPHONY_STATUS_RUNNING = 2;
+  TELEPHONY_STATUS_COMPLETED = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Agent & caller state enums
+// ---------------------------------------------------------------------------
+
+enum AgentState {
+  AGENT_STATE_UNSPECIFIED = 0;
+  AGENT_STATE_IDLE = 1;
+  AGENT_STATE_READY = 2;
+  AGENT_STATE_PEERED = 3;
+  AGENT_STATE_PAUSED = 4;
+  AGENT_STATE_WRAPUP = 5;
+  AGENT_STATE_PREPARING_PREVIEW = 6;
+  AGENT_STATE_PREVIEWING = 7;
+  AGENT_STATE_PREPARING_MANUAL = 8;
+  AGENT_STATE_DIALING = 9;
+  AGENT_STATE_INTERCOM = 10;
+  AGENT_STATE_WARM_TRANSFER_PENDING = 11;
+  AGENT_STATE_WARM_TRANSFER_ACTIVE = 12;
+  AGENT_STATE_COLD_TRANSFER_ACTIVE = 13;
+  AGENT_STATE_CONFERENCE_ACTIVE = 14;
+  AGENT_STATE_LOGGED_OUT = 15;
+  AGENT_STATE_SUSPENDED = 16;
+  AGENT_STATE_EXTERNAL_TRANSFER = 17;
+  AGENT_STATE_CALLBACK_SUSPENDED = 18;
+}
+
+enum CallerState {
+  CALLER_STATE_UNSPECIFIED = 0;
+  CALLER_STATE_IDLE = 1;
+  CALLER_STATE_READY = 2;
+  CALLER_STATE_HUNGUP = 3;
+  CALLER_STATE_PEERED = 4;
+  CALLER_STATE_VOICEMAIL = 5;
+  CALLER_STATE_OUTBOUND_LOCKED = 6;
+  CALLER_STATE_OUTBOUND_PEERED = 7;
+  CALLER_STATE_CALLBACK_SUSPENDED = 8;
+  CALLER_STATE_TRANSFER_WARM_PENDING = 9;
+  CALLER_STATE_TRANSFER_WARM_ACTIVE = 10;
+  CALLER_STATE_TRANSFER_COLD_ACTIVE = 11;
+}
+
+// ---------------------------------------------------------------------------
+// Telephony & agent entities (fixed)
+// ---------------------------------------------------------------------------
+
+message AgentCall {
+  int64 agent_call_sid = 1;
+  int64 call_sid = 2;
+  CallType call_type = 3; // was string in v2
+  string org_id = 4;
+  string user_id = 5;
+  string partner_agent_id = 6; // was field #100 in v2
+  string internal_key = 7;
+
+  // Durations as proper Duration messages instead of raw int64.
+  google.protobuf.Duration talk_duration = 10;
+  google.protobuf.Duration wait_duration = 11;
+  google.protobuf.Duration wrapup_duration = 12;
+  google.protobuf.Duration pause_duration = 13;
+  google.protobuf.Duration transfer_duration = 14;
+  google.protobuf.Duration manual_duration = 15;
+  google.protobuf.Duration preview_duration = 16;
+  google.protobuf.Duration hold_duration = 17;
+  google.protobuf.Duration agent_wait_duration = 18;
+  google.protobuf.Duration suspended_duration = 19;
+  google.protobuf.Duration external_transfer_duration = 20;
+
+  google.protobuf.Timestamp create_time = 30;
+  google.protobuf.Timestamp update_time = 31;
+
+  // Replaces parallel task_data_keys/task_data_values arrays.
+  repeated TaskData task_data = 40;
+}
+
+message TelephonyResult {
+  int64 call_sid = 1;
+  CallType call_type = 2; // was string in v2
+  string org_id = 3;
+  string internal_key = 4;
+  string caller_id = 5;
+  string phone_number = 6;
+  string pool_id = 7;
+  string record_id = 8;
+  int64 client_sid = 9;
+
+  TelephonyStatus status = 10;
+  TelephonyOutcome outcome = 11; // was flat 60+ Result enum in v2
+
+  google.protobuf.Duration delivery_length = 12;
+  google.protobuf.Duration linkback_length = 13;
+
+  google.protobuf.Timestamp create_time = 20;
+  google.protobuf.Timestamp update_time = 21;
+  google.protobuf.Timestamp start_time = 22;
+  google.protobuf.Timestamp end_time = 23;
+
+  // Replaces parallel task_data_keys/task_data_values arrays.
+  repeated TaskData task_data = 30;
+
+  // Callback resume tracking.
+  optional int64 old_call_sid = 40;
+  optional CallType old_call_type = 41;
+  optional google.protobuf.Timestamp task_waiting_until = 42;
+}
+
+message AgentResponse {
+  int64 agent_call_response_sid = 1;
+  int64 call_sid = 2;
+  CallType call_type = 3; // was string in v2
+  string org_id = 4;
+  string user_id = 5;
+  string partner_agent_id = 6; // was field #100 in v2
+  string internal_key = 7;
+  int64 agent_sid = 8;
+  int64 client_sid = 9;
+  string response_key = 10;
+  string response_value = 11;
+  google.protobuf.Timestamp create_time = 20;
+  google.protobuf.Timestamp update_time = 21;
+}
+
+message TransferInstance {
+  int64 client_sid = 1;
+  string org_id = 2;
+  int64 transfer_instance_id = 3;
+
+  Source source = 4;
+  Destination destination = 5;
+
+  TransferType transfer_type = 6;
+  TransferResult transfer_result = 7;
+
+  // Initiation flags. In v2 these were ambiguous booleans.
+  TransferInitiation initiation = 8;
+
+  google.protobuf.Timestamp create_time = 10;
+  google.protobuf.Timestamp transfer_time = 11;
+  google.protobuf.Timestamp accept_time = 12;
+  google.protobuf.Timestamp hangup_time = 13;
+  google.protobuf.Timestamp end_time = 14;
+  google.protobuf.Timestamp update_time = 15;
+
+  google.protobuf.Duration pending_duration = 20;
+  google.protobuf.Duration external_duration = 21;
+  google.protobuf.Duration full_duration = 22;
+
+  // Source of the transfer (the agent initiating).
+  message Source {
+    int64 call_sid = 1;
+    CallType call_type = 2;
+    string partner_agent_id = 3;
+    string user_id = 4;
+    string conversation_id = 5;
+    int64 session_sid = 6;
+    int64 agent_call_sid = 7;
+  }
+
+  // Destination of the transfer. Exactly one must be set.
+  // Skills apply only to queue-based destinations.
+  message Destination {
+    oneof target {
+      AgentTarget agent = 1;
+      OutboundTarget outbound = 2;
+      QueueTarget queue = 3;
+    }
+
+    message AgentTarget {
+      int64 session_sid = 1;
+      string partner_agent_id = 2;
+      string user_id = 3;
+    }
+
+    message OutboundTarget {
+      string phone_number = 1;
+      int64 call_sid = 2;
+      CallType call_type = 3;
+      string conversation_id = 4;
+    }
+
+    // Queue-based routing with skill requirements.
+    // Replaces the loose map<string,bool> that sat outside the oneof in v2.
+    message QueueTarget {
+      map<string, int64> required_skills = 1;
+    }
+  }
+
+  enum TransferType {
+    TRANSFER_TYPE_UNSPECIFIED = 0;
+    TRANSFER_TYPE_WARM_AGENT = 1;
+    TRANSFER_TYPE_WARM_CALLER = 2;
+    TRANSFER_TYPE_WARM_OUTBOUND = 3;
+    TRANSFER_TYPE_WARM_SKILL = 4;
+    TRANSFER_TYPE_COLD_AGENT = 5;
+    TRANSFER_TYPE_COLD_OUTBOUND = 6;
+    TRANSFER_TYPE_CONFERENCE = 7;
+  }
+
+  enum TransferResult {
+    TRANSFER_RESULT_UNSPECIFIED = 0;
+    TRANSFER_RESULT_ACCEPTED = 1;
+    TRANSFER_RESULT_AGENT_CANCEL = 2;
+    TRANSFER_RESULT_CALLER_HANGUP = 3;
+    TRANSFER_RESULT_DESTINATION_HANGUP = 4;
+  }
+
+  // Replaces the two ambiguous boolean flags (start_as_pending,
+  // started_as_conference) with an explicit enum.
+  enum TransferInitiation {
+    TRANSFER_INITIATION_UNSPECIFIED = 0;
+    TRANSFER_INITIATION_DIRECT = 1;
+    TRANSFER_INITIATION_PENDING = 2;
+    TRANSFER_INITIATION_CONFERENCE = 3;
+  }
+}
+
+message CallRecording {
+  string recording_id = 1;
+  string org_id = 2;
+  int64 call_sid = 3;
+  CallType call_type = 4;
+  google.protobuf.Duration duration = 5;
+  RecordingType recording_type = 6;
+  google.protobuf.Timestamp start_time = 7;
+
+  enum RecordingType {
+    RECORDING_TYPE_UNSPECIFIED = 0;
+    RECORDING_TYPE_TCN = 1;
+    RECORDING_TYPE_EXTERNAL = 2;
+    RECORDING_TYPE_VOICEMAIL = 3;
+  }
+}
+
+message Task {
+  int64 task_sid = 1;
+  int64 task_group_sid = 2;
+  string org_id = 3;
+  int64 client_sid = 4;
+  string pool_id = 5;
+  string record_id = 6;
+  int64 attempts = 7;
+  TaskStatus status = 8;
+  google.protobuf.Timestamp create_time = 10;
+  google.protobuf.Timestamp update_time = 11;
+
+  enum TaskStatus {
+    TASK_STATUS_UNSPECIFIED = 0;
+    TASK_STATUS_SCHEDULED = 1;
+    TASK_STATUS_WAITING = 2;
+    TASK_STATUS_PREPARING = 3;
+    TASK_STATUS_RUNNING = 4;
+    TASK_STATUS_COMPLETED = 5;
+    TASK_STATUS_CANCELLED_SYSTEM = 6;
+    TASK_STATUS_CANCELLED_ADMIN = 7;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Agent entity
+// ---------------------------------------------------------------------------
+
+message Agent {
+  string user_id = 1;
+  string org_id = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string username = 5;
+  string partner_agent_id = 6;
+  string current_session_id = 7;
+  AgentState agent_state = 8;
+  bool is_logged_in = 9;
+  bool is_muted = 10;
+  bool is_recording = 11;
+  optional ConnectedParty connected_party = 12;
+
+  message ConnectedParty {
+    int64 call_sid = 1;
+    CallType call_type = 2;
+    bool is_inbound = 3;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Real-time events
+// ---------------------------------------------------------------------------
+
+message AgentEvent {
+  string channel = 1;
+  AgentState old_state = 2;
+  AgentState new_state = 3;
+  google.protobuf.Timestamp state_changed = 4;
+  string tenant_id = 5;
+  string server = 6;
+  string agent_id = 7;
+  int64 state_age = 8;
+  google.protobuf.Timestamp timestamp = 9;
+  string timer = 10;
+  int64 timer_value = 11;
+  string hunt_group_id = 12;
+  string current_session_id = 13;
+  bool monitoring = 14;
+  int64 calls_count = 15;
+  string caller_id = 16;
+  string dnid = 17;
+  string intercom_peer_id = 18;
+  int64 peer_call_id = 19;
+  CallType peer_call_type = 20;
+  int32 last_sip_code = 21;
+  string last_sip_message = 22;
+
+  // Unified skill map type. v2 used int64 for AgentEvent and bool for
+  // CallerEvent which was inconsistent. Now consistently uses proficiency
+  // level (0 = present but no proficiency, >0 = proficiency score).
+  map<string, int64> skills = 30;
+  map<string, int64> all_skills = 31;
+}
+
+message CallerEvent {
+  string channel = 1;
+  CallerState old_state = 2;
+  CallerState new_state = 3;
+  google.protobuf.Timestamp state_changed = 4;
+  string tenant_id = 5;
+  string server = 6;
+  string agent_id = 7;
+  int64 state_age = 8;
+  google.protobuf.Timestamp timestamp = 9;
+  string timer = 10;
+  int64 timer_value = 11;
+  string hunt_group_id = 12;
+  string current_session_id = 13;
+  bool monitoring = 14;
+  int64 calls_count = 15;
+  string caller_id = 16;
+  string dnid = 17;
+  CallType call_type = 18;
+
+  // Consistent with AgentEvent — int64 proficiency level.
+  map<string, int64> skills = 30;
+  map<string, int64> all_skills = 31;
+}
+
+// ---------------------------------------------------------------------------
+// Skill
+// ---------------------------------------------------------------------------
+
+message Skill {
+  string skill_id = 1;
+  string name = 2;
+  string description = 3;
+  // Only set when the skill is assigned to an agent. v2 had this as a
+  // non-optional int64, making it impossible to distinguish "not assigned"
+  // from "proficiency = 0".
+  optional int64 proficiency = 4;
+}
+
+// ---------------------------------------------------------------------------
+// Scrub list
+// ---------------------------------------------------------------------------
+
+message ScrubList {
+  string scrub_list_id = 1;
+  bool read_only = 2;
+  ContentType content_type = 3;
+
+  enum ContentType {
+    CONTENT_TYPE_UNSPECIFIED = 0;
+    CONTENT_TYPE_PHONE_NUMBER = 1;
+    CONTENT_TYPE_EMAIL = 2;
+    CONTENT_TYPE_SMS = 3;
+    CONTENT_TYPE_ACCOUNT_NUMBER = 4;
+    CONTENT_TYPE_WHATSAPP = 5;
+    CONTENT_TYPE_OTHER = 6;
+  }
+}
+
+message ScrubListEntry {
+  string content = 1;
+  optional google.protobuf.Timestamp expiration = 2;
+  optional string notes = 3;
+  optional string country_code = 4;
+}

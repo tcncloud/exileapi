@@ -1,0 +1,210 @@
+// Call control service.
+//
+// Extracted from gate/v2 GateService. Handles dialing, transfers,
+// hold operations, recording control, and compliance.
+//
+// Changes from v2:
+//   - Transfer uses POST (was GET with body in v2 — HTTP violation).
+//   - Hold operations use a single RPC with action enum instead of
+//     6 separate RPCs (PutCallOnSimpleHold, TakeCallOffSimpleHold,
+//     HoldTransferMember{Caller,Agent}, Unhold...).
+//   - DialResponse no longer has deprecated caller_sid.
+//   - NCL ruleset listing co-located here (compliance is call-scoped).
+
+syntax = "proto3";
+
+package tcnapi.exile.call.v3;
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/call/v3;callv3";
+
+import "google/api/annotations.proto";
+import "tcnapi/exile/types/v3/types.proto";
+
+service CallService {
+  // Initiate an outbound call.
+  rpc Dial(DialRequest) returns (DialResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/call/v3/agents/{partner_agent_id}/dial"
+      body: "*"
+    };
+  }
+
+  // Transfer a call. Replaces the GET-with-body Transfer in v2.
+  rpc Transfer(TransferRequest) returns (TransferResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/call/v3/agents/{partner_agent_id}/transfer"
+      body: "*"
+    };
+  }
+
+  // Unified hold/unhold. Replaces 6 separate RPCs in v2.
+  rpc SetHoldState(SetHoldStateRequest) returns (SetHoldStateResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/call/v3/agents/{partner_agent_id}/hold"
+      body: "*"
+    };
+  }
+
+  rpc StartCallRecording(StartCallRecordingRequest) returns (StartCallRecordingResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/call/v3/agents/{partner_agent_id}/recording/start"
+      body: "*"
+    };
+  }
+
+  rpc StopCallRecording(StopCallRecordingRequest) returns (StopCallRecordingResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/call/v3/agents/{partner_agent_id}/recording/stop"
+      body: "*"
+    };
+  }
+
+  rpc GetRecordingStatus(GetRecordingStatusRequest) returns (GetRecordingStatusResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/call/v3/agents/{partner_agent_id}/recording/status"
+    };
+  }
+
+  // List available compliance ruleset names.
+  rpc ListComplianceRulesets(ListComplianceRulesetsRequest) returns (ListComplianceRulesetsResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/call/v3/compliance/rulesets"
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Dial
+// ---------------------------------------------------------------------------
+
+message DialRequest {
+  string partner_agent_id = 1;
+  string phone_number = 2;
+  optional string caller_id = 3;
+  optional string pool_id = 4;
+  optional string record_id = 5;
+  optional string ruleset_name = 6;
+  optional bool skip_compliance_checks = 7;
+  optional bool record_call = 8;
+}
+
+message DialResponse {
+  string phone_number = 1;
+  string caller_id = 2;
+  int64 call_sid = 3;
+  types.v3.CallType call_type = 4;
+  string org_id = 5;
+  string partner_agent_id = 6;
+  bool attempted = 7;
+  string status = 8;
+}
+
+// ---------------------------------------------------------------------------
+// Transfer
+// ---------------------------------------------------------------------------
+
+message TransferRequest {
+  string partner_agent_id = 1;
+
+  oneof destination {
+    AgentDestination agent = 2;
+    OutboundDestination outbound = 3;
+    QueueDestination queue = 4;
+  }
+
+  TransferKind kind = 5;
+  TransferAction action = 6;
+
+  message AgentDestination {
+    string partner_agent_id = 1;
+  }
+
+  message OutboundDestination {
+    string phone_number = 1;
+    optional string caller_id = 2;
+  }
+
+  message QueueDestination {
+    map<string, int64> required_skills = 1;
+  }
+
+  enum TransferKind {
+    TRANSFER_KIND_UNSPECIFIED = 0;
+    TRANSFER_KIND_COLD = 1;
+    TRANSFER_KIND_WARM = 2;
+    TRANSFER_KIND_CONFERENCE = 3;
+  }
+
+  enum TransferAction {
+    TRANSFER_ACTION_UNSPECIFIED = 0;
+    TRANSFER_ACTION_START = 1;
+    TRANSFER_ACTION_APPROVE = 2;
+    TRANSFER_ACTION_CANCEL = 3;
+  }
+}
+
+message TransferResponse {}
+
+// ---------------------------------------------------------------------------
+// Hold (unified)
+// ---------------------------------------------------------------------------
+
+message SetHoldStateRequest {
+  string partner_agent_id = 1;
+
+  HoldTarget target = 2;
+  HoldAction action = 3;
+
+  // What to hold/unhold.
+  enum HoldTarget {
+    HOLD_TARGET_UNSPECIFIED = 0;
+    // Simple hold on the active call.
+    HOLD_TARGET_CALL = 1;
+    // Hold the caller side of a transfer.
+    HOLD_TARGET_TRANSFER_CALLER = 2;
+    // Hold the agent side of a transfer.
+    HOLD_TARGET_TRANSFER_AGENT = 3;
+  }
+
+  enum HoldAction {
+    HOLD_ACTION_UNSPECIFIED = 0;
+    HOLD_ACTION_HOLD = 1;
+    HOLD_ACTION_UNHOLD = 2;
+  }
+}
+
+message SetHoldStateResponse {}
+
+// ---------------------------------------------------------------------------
+// Recording
+// ---------------------------------------------------------------------------
+
+message StartCallRecordingRequest {
+  string partner_agent_id = 1;
+}
+
+message StartCallRecordingResponse {}
+
+message StopCallRecordingRequest {
+  string partner_agent_id = 1;
+}
+
+message StopCallRecordingResponse {}
+
+message GetRecordingStatusRequest {
+  string partner_agent_id = 1;
+}
+
+message GetRecordingStatusResponse {
+  bool is_recording = 1;
+}
+
+// ---------------------------------------------------------------------------
+// Compliance
+// ---------------------------------------------------------------------------
+
+message ListComplianceRulesetsRequest {}
+
+message ListComplianceRulesetsResponse {
+  repeated string ruleset_names = 1;
+}

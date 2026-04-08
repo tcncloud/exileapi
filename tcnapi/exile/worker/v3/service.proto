@@ -1,0 +1,464 @@
+// Worker service: unified work stream protocol.
+//
+// Replaces the three separate connections in gate/v2:
+//   - JobQueueStream (bidirectional gRPC) — job dispatch + ACK
+//   - EventStream (bidirectional gRPC) — event dispatch + ACK
+//   - SubmitJobResults (unary RPC) — result submission
+//
+// Design principles:
+//   1. Single bidirectional stream for all work dispatch and results.
+//   2. Client-driven pull with credit-based flow control (backpressure).
+//   3. Every work item has a lease/deadline — no hung jobs.
+//   4. Results flow on the same stream — no separate RPC.
+//   5. Jobs and events are both "work items" — unified dispatch.
+
+syntax = "proto3";
+
+package tcnapi.exile.worker.v3;
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/worker/v3;workerv3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "tcnapi/exile/types/v3/types.proto";
+
+// ---------------------------------------------------------------------------
+// Service
+// ---------------------------------------------------------------------------
+
+service WorkerService {
+  // Single bidirectional stream replacing JobQueueStream, EventStream,
+  // and SubmitJobResults.
+  //
+  // Protocol:
+  //   1. Client opens stream, sends Register.
+  //   2. Server responds with Registered (confirms client, sets heartbeat).
+  //   3. Client sends Pull(max_items=N) to request work.
+  //   4. Server sends up to N WorkItems, each with a lease deadline.
+  //   5. Client processes work:
+  //      - For jobs: sends Result with the job output.
+  //      - For events: sends Ack to confirm handling.
+  //   6. Each Result/Ack frees one unit of capacity. Client sends
+  //      additional Pull to request more work when ready.
+  //   7. If a lease expires before Result/Ack, server reclaims the
+  //      work item and may dispatch it to another client.
+  //   8. Client can send ExtendLease to get more time on a work item.
+  //   9. Both sides send Heartbeat periodically to detect stale connections.
+  //
+  // Flow control:
+  //   The server NEVER sends more WorkItems than the client has requested
+  //   via Pull. The client controls its own concurrency by choosing when
+  //   and how many items to pull. This eliminates the need for external
+  //   semaphores or queue executors.
+  //
+  // Failure semantics:
+  //   - Stream disconnect: all leased items whose deadlines haven't passed
+  //     remain "in progress" until their lease expires, then get reclaimed.
+  //   - Explicit Nack: client can reject a work item, making it immediately
+  //     available for redelivery.
+  //   - Result delivery is confirmed by ResultAccepted from server, giving
+  //     the client a delivery guarantee (unlike fire-and-forget in v2).
+  rpc WorkStream(stream WorkRequest) returns (stream WorkResponse);
+}
+
+// ---------------------------------------------------------------------------
+// Client -> Server messages
+// ---------------------------------------------------------------------------
+
+message WorkRequest {
+  oneof action {
+    Register register = 1;
+    Pull pull = 2;
+    Result result = 3;
+    Ack ack = 4;
+    Nack nack = 5;
+    ExtendLease extend_lease = 6;
+    Heartbeat heartbeat = 7;
+  }
+}
+
+// First message on stream. Identifies the client and its capabilities.
+message Register {
+  // Human-readable client name (e.g., "sati-finvi-prod-1").
+  string client_name = 1;
+
+  // Client software version for diagnostics.
+  string client_version = 2;
+
+  // Work types this client can handle. Empty means "all types".
+  // Allows server to route specific work to capable clients.
+  repeated WorkType capabilities = 3;
+}
+
+// Request work items. Client controls concurrency by choosing max_items.
+//
+// Sending Pull(max_items=5) means "I can accept 5 more items."
+// The server tracks outstanding capacity per client:
+//   capacity += pull.max_items (on Pull)
+//   capacity -= 1 (on each WorkItem sent)
+// Client typically sends Pull after completing items to replenish.
+message Pull {
+  int32 max_items = 1;
+}
+
+// Submit the result of a completed job. Server confirms with ResultAccepted.
+message Result {
+  string work_id = 1;
+
+  // For large results, send multiple Result messages with the same work_id.
+  // Set to true on the final message. Server accumulates chunks until this
+  // is true. The lease remains active during chunked submission.
+  bool final = 2;
+
+  oneof payload {
+    ListPoolsResult list_pools = 10;
+    GetPoolStatusResult get_pool_status = 11;
+    GetPoolRecordsResult get_pool_records = 12;
+    SearchRecordsResult search_records = 13;
+    GetRecordFieldsResult get_record_fields = 14;
+    SetRecordFieldsResult set_record_fields = 15;
+    CreatePaymentResult create_payment = 16;
+    PopAccountResult pop_account = 17;
+    ExecuteLogicResult execute_logic = 18;
+    InfoResult info = 19;
+    ShutdownResult shutdown = 20;
+    LoggingResult logging = 21;
+    DiagnosticsResult diagnostics = 22;
+    ListTenantLogsResult list_tenant_logs = 23;
+    SetLogLevelResult set_log_level = 24;
+    ErrorResult error = 30;
+  }
+}
+
+// Acknowledge processing of an event (no result data needed).
+// Can batch multiple IDs for efficiency.
+message Ack {
+  repeated string work_ids = 1;
+}
+
+// Reject a work item. Makes it immediately available for another client.
+// Use when the client cannot process the item (e.g., missing capability,
+// database down for non-admin work).
+message Nack {
+  string work_id = 1;
+  string reason = 2;
+}
+
+// Request more time to process a work item.
+message ExtendLease {
+  string work_id = 1;
+  google.protobuf.Duration extension = 2;
+}
+
+message Heartbeat {
+  google.protobuf.Timestamp client_time = 1;
+}
+
+// ---------------------------------------------------------------------------
+// Server -> Client messages
+// ---------------------------------------------------------------------------
+
+message WorkResponse {
+  oneof payload {
+    Registered registered = 1;
+    WorkItem work_item = 2;
+    ResultAccepted result_accepted = 3;
+    LeaseExtended lease_extended = 4;
+    LeaseExpiring lease_expiring = 5;
+    Heartbeat heartbeat = 6;
+    StreamError error = 7;
+    NackAccepted nack_accepted = 8;
+  }
+}
+
+// Response to Register. Tells client the heartbeat interval and
+// any server-imposed configuration.
+message Registered {
+  string client_id = 1;
+  google.protobuf.Duration heartbeat_interval = 2;
+  google.protobuf.Duration default_lease = 3;
+  // Maximum items the server will dispatch per Pull. Client may request
+  // more, but server caps at this value.
+  int32 max_inflight = 4;
+}
+
+// A unit of work dispatched to the client.
+message WorkItem {
+  // Server-assigned unique identifier.
+  string work_id = 1;
+
+  // Absolute deadline. If the client does not send a Result or Ack
+  // by this time, the item is reclaimed and eligible for redelivery.
+  google.protobuf.Timestamp deadline = 2;
+
+  // Whether this item requires a Result (JOB) or just an Ack (EVENT).
+  WorkCategory category = 3;
+
+  // Delivery attempt number. 1 = first delivery, 2+ = redelivery after
+  // lease expiry or nack. Clients can use this for deduplication or
+  // to detect poison-pill items.
+  int32 attempt = 4;
+
+  oneof task {
+    // --- Jobs (require Result) ---
+    ListPoolsTask list_pools = 10;
+    GetPoolStatusTask get_pool_status = 11;
+    GetPoolRecordsTask get_pool_records = 12;
+    SearchRecordsTask search_records = 13;
+    GetRecordFieldsTask get_record_fields = 14;
+    SetRecordFieldsTask set_record_fields = 15;
+    CreatePaymentTask create_payment = 16;
+    PopAccountTask pop_account = 17;
+    ExecuteLogicTask execute_logic = 18;
+    InfoTask info = 19;
+    ShutdownTask shutdown = 20;
+    LoggingTask logging = 21;
+    DiagnosticsTask diagnostics = 22;
+    ListTenantLogsTask list_tenant_logs = 23;
+    SetLogLevelTask set_log_level = 24;
+
+    // --- Events (require Ack only) ---
+    types.v3.AgentCall agent_call = 50;
+    types.v3.TelephonyResult telephony_result = 51;
+    types.v3.AgentResponse agent_response = 52;
+    types.v3.TransferInstance transfer_instance = 53;
+    types.v3.CallRecording call_recording = 54;
+    types.v3.Task task = 55;
+  }
+}
+
+// Confirms the server received and persisted the result.
+// This gives clients a delivery guarantee that v2 lacked.
+message ResultAccepted {
+  string work_id = 1;
+}
+
+message LeaseExtended {
+  string work_id = 1;
+  google.protobuf.Timestamp new_deadline = 2;
+}
+
+// Warning sent when a lease is about to expire. Gives the client a
+// chance to extend or rush completion.
+message LeaseExpiring {
+  string work_id = 1;
+  google.protobuf.Timestamp deadline = 2;
+  // Time remaining until expiry.
+  google.protobuf.Duration remaining = 3;
+}
+
+message NackAccepted {
+  string work_id = 1;
+}
+
+// Non-fatal stream error (e.g., invalid work_id in a Result).
+// Fatal errors close the stream with a gRPC status code.
+message StreamError {
+  string work_id = 1;
+  string code = 2;
+  string message = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Work categories and types
+// ---------------------------------------------------------------------------
+
+enum WorkCategory {
+  WORK_CATEGORY_UNSPECIFIED = 0;
+  // Jobs require a Result response before the deadline.
+  WORK_CATEGORY_JOB = 1;
+  // Events require an Ack before the deadline. No result data needed.
+  WORK_CATEGORY_EVENT = 2;
+}
+
+// Exhaustive list of work types for capability filtering.
+enum WorkType {
+  WORK_TYPE_UNSPECIFIED = 0;
+
+  // Jobs
+  WORK_TYPE_LIST_POOLS = 1;
+  WORK_TYPE_GET_POOL_STATUS = 2;
+  WORK_TYPE_GET_POOL_RECORDS = 3;
+  WORK_TYPE_SEARCH_RECORDS = 4;
+  WORK_TYPE_GET_RECORD_FIELDS = 5;
+  WORK_TYPE_SET_RECORD_FIELDS = 6;
+  WORK_TYPE_CREATE_PAYMENT = 7;
+  WORK_TYPE_POP_ACCOUNT = 8;
+  WORK_TYPE_EXECUTE_LOGIC = 9;
+  WORK_TYPE_INFO = 10;
+  WORK_TYPE_SHUTDOWN = 11;
+  WORK_TYPE_LOGGING = 12;
+  WORK_TYPE_DIAGNOSTICS = 13;
+  WORK_TYPE_LIST_TENANT_LOGS = 14;
+  WORK_TYPE_SET_LOG_LEVEL = 15;
+
+  // Events
+  WORK_TYPE_AGENT_CALL = 50;
+  WORK_TYPE_TELEPHONY_RESULT = 51;
+  WORK_TYPE_AGENT_RESPONSE = 52;
+  WORK_TYPE_TRANSFER_INSTANCE = 53;
+  WORK_TYPE_CALL_RECORDING = 54;
+  WORK_TYPE_TASK = 55;
+}
+
+// ---------------------------------------------------------------------------
+// Job task payloads (server -> client)
+// ---------------------------------------------------------------------------
+
+message ListPoolsTask {}
+
+message GetPoolStatusTask {
+  string pool_id = 1;
+}
+
+message GetPoolRecordsTask {
+  string pool_id = 1;
+  // Page token for continuation. Empty on first request.
+  string page_token = 2;
+  int32 page_size = 3;
+}
+
+message SearchRecordsTask {
+  repeated types.v3.Filter filters = 1;
+  string page_token = 2;
+  int32 page_size = 3;
+}
+
+message GetRecordFieldsTask {
+  string pool_id = 1;
+  string record_id = 2;
+  // If empty, return all fields.
+  repeated string field_names = 3;
+}
+
+message SetRecordFieldsTask {
+  string pool_id = 1;
+  string record_id = 2;
+  repeated types.v3.Field fields = 3;
+}
+
+message CreatePaymentTask {
+  string pool_id = 1;
+  string record_id = 2;
+  google.protobuf.Struct payment_data = 3;
+}
+
+message PopAccountTask {
+  string pool_id = 1;
+  string record_id = 2;
+}
+
+message ExecuteLogicTask {
+  string logic_name = 1;
+  google.protobuf.Struct parameters = 2;
+}
+
+message InfoTask {}
+
+message ShutdownTask {
+  string reason = 1;
+}
+
+message LoggingTask {
+  string payload = 1;
+}
+
+message DiagnosticsTask {}
+
+message ListTenantLogsTask {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+  string page_token = 3;
+  int32 page_size = 4;
+}
+
+message SetLogLevelTask {
+  string logger_name = 1;
+  string level = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Job result payloads (client -> server)
+// ---------------------------------------------------------------------------
+
+message ListPoolsResult {
+  repeated types.v3.Pool pools = 1;
+}
+
+message GetPoolStatusResult {
+  types.v3.Pool pool = 1;
+}
+
+message GetPoolRecordsResult {
+  repeated types.v3.Record records = 1;
+  // If non-empty, more records are available. Server should dispatch
+  // a follow-up GetPoolRecordsTask with this token.
+  string next_page_token = 2;
+}
+
+message SearchRecordsResult {
+  repeated types.v3.Record records = 1;
+  string next_page_token = 2;
+}
+
+message GetRecordFieldsResult {
+  repeated types.v3.Field fields = 1;
+}
+
+message SetRecordFieldsResult {
+  bool success = 1;
+}
+
+message CreatePaymentResult {
+  bool success = 1;
+  string payment_id = 2;
+}
+
+message PopAccountResult {
+  types.v3.Record record = 1;
+}
+
+message ExecuteLogicResult {
+  google.protobuf.Struct output = 1;
+}
+
+message InfoResult {
+  string app_name = 1;
+  string app_version = 2;
+  google.protobuf.Struct metadata = 3;
+}
+
+message ShutdownResult {}
+
+message LoggingResult {}
+
+// Diagnostics as a generic Struct instead of 50+ Java-specific fields.
+// Each runtime (Java, Go, Python) can populate what's relevant.
+message DiagnosticsResult {
+  google.protobuf.Struct system_info = 1;
+  google.protobuf.Struct runtime_info = 2;
+  google.protobuf.Struct database_info = 3;
+  google.protobuf.Struct custom = 4;
+}
+
+message ListTenantLogsResult {
+  repeated LogEntry entries = 1;
+  string next_page_token = 2;
+
+  message LogEntry {
+    google.protobuf.Timestamp timestamp = 1;
+    string level = 2;
+    string logger = 3;
+    string message = 4;
+  }
+}
+
+message SetLogLevelResult {}
+
+message ErrorResult {
+  string message = 1;
+  // Optional structured error details.
+  string code = 2;
+  google.protobuf.Struct details = 3;
+}

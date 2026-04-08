@@ -1,0 +1,269 @@
+// Agent management service.
+//
+// Extracted from gate/v2 GateService. Handles agent CRUD, state
+// management, muting, skills, and pause codes.
+//
+// Changes from v2:
+//   - GetAgentById and GetAgentByPartnerId merged into GetAgent with
+//     a oneof identifier (consistent resource lookup).
+//   - UpsertAgent no longer carries plaintext password. Use
+//     SetAgentCredentials for password changes.
+//   - ListAgents supports pagination (page_token) in addition to streaming.
+//   - ListHuntGroupPauseCodes moved here from GateService (was orphaned).
+//   - Skill management co-located with agent (assign/unassign are
+//     agent-scoped operations).
+
+syntax = "proto3";
+
+package tcnapi.exile.agent.v3;
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/agent/v3;agentv3";
+
+import "google/api/annotations.proto";
+import "tcnapi/exile/types/v3/types.proto";
+
+service AgentService {
+  // Get a single agent by user_id or partner_agent_id.
+  rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}"
+    };
+  }
+
+  // List agents with optional filters. Supports both streaming and
+  // paginated responses.
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/agent/v3/agents"
+    };
+  }
+
+  // Create or update an agent (excluding credentials).
+  rpc UpsertAgent(UpsertAgentRequest) returns (UpsertAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}"
+      body: "*"
+    };
+  }
+
+  // Set agent credentials separately from profile data.
+  // Keeps passwords out of general CRUD payloads.
+  rpc SetAgentCredentials(SetAgentCredentialsRequest) returns (SetAgentCredentialsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/credentials"
+      body: "*"
+    };
+  }
+
+  // Update agent state (ready, paused, wrapup, etc.).
+  rpc UpdateAgentStatus(UpdateAgentStatusRequest) returns (UpdateAgentStatusResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/status"
+      body: "*"
+    };
+  }
+
+  // Get current agent state, session, and connected party.
+  rpc GetAgentStatus(GetAgentStatusRequest) returns (GetAgentStatusResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/status"
+    };
+  }
+
+  rpc MuteAgent(MuteAgentRequest) returns (MuteAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/mute"
+      body: "*"
+    };
+  }
+
+  rpc UnmuteAgent(UnmuteAgentRequest) returns (UnmuteAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/unmute"
+      body: "*"
+    };
+  }
+
+  // Record an agent's response to a call (key/value pair).
+  rpc AddAgentCallResponse(AddAgentCallResponseRequest) returns (AddAgentCallResponseResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/call_responses"
+      body: "*"
+    };
+  }
+
+  // List pause codes available to an agent's hunt group.
+  rpc ListHuntGroupPauseCodes(ListHuntGroupPauseCodesRequest) returns (ListHuntGroupPauseCodesResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/pause_codes"
+    };
+  }
+
+  // --- Skill management (agent-scoped) ---
+
+  // List all skills defined in the system.
+  rpc ListSkills(ListSkillsRequest) returns (ListSkillsResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/agent/v3/skills"
+    };
+  }
+
+  // List skills assigned to a specific agent.
+  rpc ListAgentSkills(ListAgentSkillsRequest) returns (ListAgentSkillsResponse) {
+    option (google.api.http) = {
+      get: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/skills"
+    };
+  }
+
+  rpc AssignAgentSkill(AssignAgentSkillRequest) returns (AssignAgentSkillResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/skills"
+      body: "*"
+    };
+  }
+
+  rpc UnassignAgentSkill(UnassignAgentSkillRequest) returns (UnassignAgentSkillResponse) {
+    option (google.api.http) = {
+      delete: "/tcnapi/exile/agent/v3/agents/{partner_agent_id}/skills/{skill_id}"
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Request / Response messages
+// ---------------------------------------------------------------------------
+
+message GetAgentRequest {
+  // Look up by either identifier.
+  oneof identifier {
+    string partner_agent_id = 1;
+    string user_id = 2;
+  }
+}
+
+message GetAgentResponse {
+  types.v3.Agent agent = 1;
+}
+
+message ListAgentsRequest {
+  // Optional filters.
+  optional bool logged_in = 1;
+  optional types.v3.AgentState state = 2;
+  bool include_recording_status = 3;
+  // Pagination. If empty, returns first page.
+  string page_token = 4;
+  int32 page_size = 5;
+}
+
+message ListAgentsResponse {
+  repeated types.v3.Agent agents = 1;
+  string next_page_token = 2;
+}
+
+message UpsertAgentRequest {
+  string partner_agent_id = 1;
+  string username = 2;
+  string first_name = 3;
+  string last_name = 4;
+}
+
+message UpsertAgentResponse {
+  types.v3.Agent agent = 1;
+}
+
+// Separate RPC for credentials. Keeps passwords out of CRUD payloads
+// and audit logs.
+message SetAgentCredentialsRequest {
+  string partner_agent_id = 1;
+  string password = 2;
+}
+
+message SetAgentCredentialsResponse {}
+
+message UpdateAgentStatusRequest {
+  string partner_agent_id = 1;
+  types.v3.AgentState new_state = 2;
+  string reason = 3;
+}
+
+message UpdateAgentStatusResponse {}
+
+message GetAgentStatusRequest {
+  string partner_agent_id = 1;
+}
+
+message GetAgentStatusResponse {
+  string partner_agent_id = 1;
+  types.v3.AgentState agent_state = 2;
+  string current_session_id = 3;
+  optional types.v3.Agent.ConnectedParty connected_party = 4;
+  bool is_muted = 5;
+  bool is_recording = 6;
+}
+
+message MuteAgentRequest {
+  string partner_agent_id = 1;
+}
+
+message MuteAgentResponse {}
+
+message UnmuteAgentRequest {
+  string partner_agent_id = 1;
+}
+
+message UnmuteAgentResponse {}
+
+message AddAgentCallResponseRequest {
+  string partner_agent_id = 1;
+  int64 call_sid = 2;
+  types.v3.CallType call_type = 3;
+  string current_session_id = 4;
+  string key = 5;
+  string value = 6;
+}
+
+message AddAgentCallResponseResponse {}
+
+message ListHuntGroupPauseCodesRequest {
+  string partner_agent_id = 1;
+}
+
+message ListHuntGroupPauseCodesResponse {
+  string name = 1;
+  string description = 2;
+  repeated PauseCode pause_codes = 3;
+
+  message PauseCode {
+    string code = 1;
+    string description = 2;
+  }
+}
+
+message ListSkillsRequest {}
+
+message ListSkillsResponse {
+  repeated types.v3.Skill skills = 1;
+}
+
+message ListAgentSkillsRequest {
+  string partner_agent_id = 1;
+}
+
+message ListAgentSkillsResponse {
+  repeated types.v3.Skill skills = 1;
+}
+
+message AssignAgentSkillRequest {
+  string partner_agent_id = 1;
+  string skill_id = 2;
+  int64 proficiency = 3;
+}
+
+message AssignAgentSkillResponse {}
+
+message UnassignAgentSkillRequest {
+  string partner_agent_id = 1;
+  string skill_id = 2;
+}
+
+message UnassignAgentSkillResponse {}
