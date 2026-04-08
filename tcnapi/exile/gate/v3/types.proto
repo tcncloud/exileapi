@@ -11,13 +11,13 @@
 
 syntax = "proto3";
 
-package tcnapi.exile.v3;
+package tcnapi.exile.gate.v3;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
 option java_multiple_files = true;
 
 // ---------------------------------------------------------------------------

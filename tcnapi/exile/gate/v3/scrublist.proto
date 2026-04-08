@@ -2,36 +2,36 @@
 
 syntax = "proto3";
 
-package tcnapi.exile.v3;
+package tcnapi.exile.gate.v3;
 
 import "google/api/annotations.proto";
-import "tcnapi/exile/v3/types.proto";
+import "tcnapi/exile/gate/v3/types.proto";
 
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
 option java_multiple_files = true;
 
 service ScrubListService {
   rpc ListScrubLists(ListScrubListsRequest) returns (ListScrubListsResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/scrublists"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/scrublists"};
   }
 
   rpc AddEntries(AddEntriesRequest) returns (AddEntriesResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/scrublists/{scrub_list_id}/entries"
+      post: "/tcnapi/exile/gate/v3/scrublists/{scrub_list_id}/entries"
       body: "*"
     };
   }
 
   rpc UpdateEntry(UpdateEntryRequest) returns (UpdateEntryResponse) {
     option (google.api.http) = {
-      patch: "/tcnapi/exile/v3/scrublists/{scrub_list_id}/entries/{content}"
+      patch: "/tcnapi/exile/gate/v3/scrublists/{scrub_list_id}/entries/{content}"
       body: "*"
     };
   }
 
   rpc RemoveEntries(RemoveEntriesRequest) returns (RemoveEntriesResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/scrublists/{scrub_list_id}/entries:remove"
+      post: "/tcnapi/exile/gate/v3/scrublists/{scrub_list_id}/entries:remove"
       body: "*"
     };
   }

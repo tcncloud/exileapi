@@ -2,56 +2,56 @@
 
 syntax = "proto3";
 
-package tcnapi.exile.v3;
+package tcnapi.exile.gate.v3;
 
 import "google/api/annotations.proto";
-import "tcnapi/exile/v3/types.proto";
+import "tcnapi/exile/gate/v3/types.proto";
 
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
 option java_multiple_files = true;
 
 service CallService {
   rpc Dial(DialRequest) returns (DialResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/dial"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/dial"
       body: "*"
     };
   }
 
   rpc Transfer(TransferRequest) returns (TransferResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/transfer"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/transfer"
       body: "*"
     };
   }
 
   rpc SetHoldState(SetHoldStateRequest) returns (SetHoldStateResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/hold"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/hold"
       body: "*"
     };
   }
 
   rpc StartCallRecording(StartCallRecordingRequest) returns (StartCallRecordingResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/recording/start"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/recording/start"
       body: "*"
     };
   }
 
   rpc StopCallRecording(StopCallRecordingRequest) returns (StopCallRecordingResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/recording/stop"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/recording/stop"
       body: "*"
     };
   }
 
   rpc GetRecordingStatus(GetRecordingStatusRequest) returns (GetRecordingStatusResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}/recording/status"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/recording/status"};
   }
 
   rpc ListComplianceRulesets(ListComplianceRulesetsRequest) returns (ListComplianceRulesetsResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/compliance/rulesets"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/compliance/rulesets"};
   }
 }
 

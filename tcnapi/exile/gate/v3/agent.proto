@@ -2,90 +2,90 @@
 
 syntax = "proto3";
 
-package tcnapi.exile.v3;
+package tcnapi.exile.gate.v3;
 
 import "google/api/annotations.proto";
-import "tcnapi/exile/v3/types.proto";
+import "tcnapi/exile/gate/v3/types.proto";
 
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
 option java_multiple_files = true;
 
 service AgentService {
   rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}"};
   }
 
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/agents"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/agents"};
   }
 
   rpc UpsertAgent(UpsertAgentRequest) returns (UpsertAgentResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}"
       body: "*"
     };
   }
 
   rpc SetAgentCredentials(SetAgentCredentialsRequest) returns (SetAgentCredentialsResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/credentials"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/credentials"
       body: "*"
     };
   }
 
   rpc UpdateAgentStatus(UpdateAgentStatusRequest) returns (UpdateAgentStatusResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/status"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/status"
       body: "*"
     };
   }
 
   rpc GetAgentStatus(GetAgentStatusRequest) returns (GetAgentStatusResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}/status"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/status"};
   }
 
   rpc MuteAgent(MuteAgentRequest) returns (MuteAgentResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/mute"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/mute"
       body: "*"
     };
   }
 
   rpc UnmuteAgent(UnmuteAgentRequest) returns (UnmuteAgentResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/unmute"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/unmute"
       body: "*"
     };
   }
 
   rpc AddAgentCallResponse(AddAgentCallResponseRequest) returns (AddAgentCallResponseResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/call_responses"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/call_responses"
       body: "*"
     };
   }
 
   rpc ListHuntGroupPauseCodes(ListHuntGroupPauseCodesRequest) returns (ListHuntGroupPauseCodesResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}/pause_codes"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/pause_codes"};
   }
 
   rpc ListSkills(ListSkillsRequest) returns (ListSkillsResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/skills"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/skills"};
   }
 
   rpc ListAgentSkills(ListAgentSkillsRequest) returns (ListAgentSkillsResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}/skills"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/skills"};
   }
 
   rpc AssignAgentSkill(AssignAgentSkillRequest) returns (AssignAgentSkillResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/skills"
+      post: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/skills"
       body: "*"
     };
   }
 
   rpc UnassignAgentSkill(UnassignAgentSkillRequest) returns (UnassignAgentSkillResponse) {
-    option (google.api.http) = {delete: "/tcnapi/exile/v3/agents/{partner_agent_id}/skills/{skill_id}"};
+    option (google.api.http) = {delete: "/tcnapi/exile/gate/v3/agents/{partner_agent_id}/skills/{skill_id}"};
   }
 }
 
