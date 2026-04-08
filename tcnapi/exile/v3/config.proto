@@ -1,52 +1,42 @@
 // Configuration and lifecycle service.
-//
-// Extracted from gate/v2 GateService. Handles client configuration,
-// organization info, certificate rotation, logging, and journey buffer.
 
 syntax = "proto3";
 
-package tcnapi.exile.config.v3;
-
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/config/v3;configv3";
+package tcnapi.exile.v3;
 
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
-import "tcnapi/exile/types/v3/types.proto";
+import "tcnapi/exile/v3/types.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option java_multiple_files = true;
 
 service ConfigService {
-  // Get client configuration. Returns plugin config payload and org info.
-  // config_payload is now a Struct instead of an opaque string.
   rpc GetClientConfiguration(GetClientConfigurationRequest) returns (GetClientConfigurationResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/config/v3/client_configuration"
-    };
+    option (google.api.http) = {get: "/tcnapi/exile/v3/client_configuration"};
   }
 
   rpc GetOrganizationInfo(GetOrganizationInfoRequest) returns (GetOrganizationInfoResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/config/v3/organization_info"
-    };
+    option (google.api.http) = {get: "/tcnapi/exile/v3/organization_info"};
   }
 
   rpc RotateCertificate(RotateCertificateRequest) returns (RotateCertificateResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/config/v3/rotate_certificate"
+      post: "/tcnapi/exile/v3/rotate_certificate"
       body: "*"
     };
   }
 
-  // Send log messages to the platform.
   rpc Log(LogRequest) returns (LogResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/config/v3/log"
+      post: "/tcnapi/exile/v3/log"
       body: "*"
     };
   }
 
-  // Add a record to the journey/customer context buffer.
   rpc AddRecordToJourneyBuffer(AddRecordToJourneyBufferRequest) returns (AddRecordToJourneyBufferResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/config/v3/journey_buffer"
+      post: "/tcnapi/exile/v3/journey_buffer"
       body: "*"
     };
   }
@@ -58,8 +48,6 @@ message GetClientConfigurationResponse {
   string org_id = 1;
   string org_name = 2;
   string config_name = 3;
-  // Typed payload instead of opaque string. Consumers deserialize
-  // into their plugin-specific config record.
   google.protobuf.Struct config_payload = 4;
 }
 
@@ -73,7 +61,6 @@ message GetOrganizationInfoResponse {
 message RotateCertificateRequest {
   string certificate_hash = 1;
 }
-
 message RotateCertificateResponse {
   string encoded_certificate = 1;
 }
@@ -81,11 +68,10 @@ message RotateCertificateResponse {
 message LogRequest {
   string payload = 1;
 }
-
 message LogResponse {}
 
 message AddRecordToJourneyBufferRequest {
-  types.v3.Record record = 1;
+  Record record = 1;
 }
 
 message AddRecordToJourneyBufferResponse {

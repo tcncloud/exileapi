@@ -1,6 +1,6 @@
 // Shared entity types for the Exile platform.
 //
-// This package fixes several design issues from core/v2 and gate/v2:
+// Fixes from core/v2 and gate/v2:
 //   - Parallel arrays (task_data_keys/values) replaced with repeated TaskData
 //   - call_type changed from string to CallType enum
 //   - Filter.Operator unified with SearchOption.Operator
@@ -11,13 +11,14 @@
 
 syntax = "proto3";
 
-package tcnapi.exile.types.v3;
-
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/types/v3;typesv3";
+package tcnapi.exile.v3;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option java_multiple_files = true;
 
 // ---------------------------------------------------------------------------
 // Core data types
@@ -40,8 +41,6 @@ message Pool {
 message Record {
   string pool_id = 1;
   string record_id = 2;
-  // Structured payload instead of raw JSON string.
-  // Consumers that need raw JSON can use google.protobuf.Struct's JSON mapping.
   google.protobuf.Struct payload = 3;
 }
 
@@ -52,15 +51,11 @@ message Field {
   string record_id = 4;
 }
 
-// Replaces the parallel arrays (task_data_keys + task_data_values) antipattern.
-// Each entry is a self-contained key-value pair.
 message TaskData {
   string key = 1;
   google.protobuf.Value value = 2;
 }
 
-// Unified filter with full operator set. Replaces both core.v2.Filter
-// (which only had EQUAL) and gate.v2.SearchOption (which had a partial set).
 message Filter {
   string field = 1;
   Operator operator = 2;
@@ -82,7 +77,6 @@ message Filter {
 // Call & telephony enums
 // ---------------------------------------------------------------------------
 
-// Strongly typed call type. Replaces the raw string field in v2 entities.
 enum CallType {
   CALL_TYPE_UNSPECIFIED = 0;
   CALL_TYPE_INBOUND = 1;
@@ -92,8 +86,6 @@ enum CallType {
   CALL_TYPE_MAC = 5;
 }
 
-// Telephony call outcome, split into category + detail for easier handling.
-// Replaces the 60+ flat Result enum from v2.
 message TelephonyOutcome {
   Category category = 1;
   Detail detail = 2;
@@ -110,29 +102,22 @@ message TelephonyOutcome {
     CATEGORY_PENDING = 8;
   }
 
-  // Fine-grained detail within a category. Not all details apply to all
-  // categories. Consumers should switch on category first, then detail.
   enum Detail {
     DETAIL_UNSPECIFIED = 0;
     DETAIL_GENERIC = 1;
-    // Answered details
     DETAIL_LINKCALL = 2;
     DETAIL_LINKCALL_NO_AGENT = 3;
     DETAIL_MACHINE_HANGUP = 4;
     DETAIL_MACHINE_DELIVERED = 5;
-    // No-answer details
     DETAIL_NO_ANSWER_TIMEOUT = 6;
-    // Invalid details
     DETAIL_INVALID_SIP_INVITE = 7;
     DETAIL_INVALID_DESTINATION = 8;
     DETAIL_DISCONNECTED_NUMBER = 9;
-    // Failed details
     DETAIL_DNC_CHECK_PERSONAL = 10;
     DETAIL_DNC_CHECK_NATIONAL = 11;
     DETAIL_COMPLIANCE_BLOCK = 12;
     DETAIL_CARRIER_REJECT = 13;
     DETAIL_INTERNAL_ERROR = 14;
-    // Canceled details
     DETAIL_AGENT_CANCEL = 15;
     DETAIL_SYSTEM_CANCEL = 16;
   }
@@ -146,7 +131,7 @@ enum TelephonyStatus {
 }
 
 // ---------------------------------------------------------------------------
-// Agent & caller state enums
+// Agent state
 // ---------------------------------------------------------------------------
 
 enum AgentState {
@@ -172,19 +157,18 @@ enum AgentState {
 }
 
 // ---------------------------------------------------------------------------
-// Telephony & agent entities (fixed)
+// Telephony & agent entities
 // ---------------------------------------------------------------------------
 
 message AgentCall {
   int64 agent_call_sid = 1;
   int64 call_sid = 2;
-  CallType call_type = 3; // was string in v2
+  CallType call_type = 3;
   string org_id = 4;
   string user_id = 5;
-  string partner_agent_id = 6; // was field #100 in v2
+  string partner_agent_id = 6;
   string internal_key = 7;
 
-  // Durations as proper Duration messages instead of raw int64.
   google.protobuf.Duration talk_duration = 10;
   google.protobuf.Duration wait_duration = 11;
   google.protobuf.Duration wrapup_duration = 12;
@@ -200,13 +184,12 @@ message AgentCall {
   google.protobuf.Timestamp create_time = 30;
   google.protobuf.Timestamp update_time = 31;
 
-  // Replaces parallel task_data_keys/task_data_values arrays.
   repeated TaskData task_data = 40;
 }
 
 message TelephonyResult {
   int64 call_sid = 1;
-  CallType call_type = 2; // was string in v2
+  CallType call_type = 2;
   string org_id = 3;
   string internal_key = 4;
   string caller_id = 5;
@@ -216,7 +199,7 @@ message TelephonyResult {
   int64 client_sid = 9;
 
   TelephonyStatus status = 10;
-  TelephonyOutcome outcome = 11; // was flat 60+ Result enum in v2
+  TelephonyOutcome outcome = 11;
 
   google.protobuf.Duration delivery_length = 12;
   google.protobuf.Duration linkback_length = 13;
@@ -226,10 +209,8 @@ message TelephonyResult {
   google.protobuf.Timestamp start_time = 22;
   google.protobuf.Timestamp end_time = 23;
 
-  // Replaces parallel task_data_keys/task_data_values arrays.
   repeated TaskData task_data = 30;
 
-  // Callback resume tracking.
   optional int64 old_call_sid = 40;
   optional CallType old_call_type = 41;
   optional google.protobuf.Timestamp task_waiting_until = 42;
@@ -238,10 +219,10 @@ message TelephonyResult {
 message AgentResponse {
   int64 agent_call_response_sid = 1;
   int64 call_sid = 2;
-  CallType call_type = 3; // was string in v2
+  CallType call_type = 3;
   string org_id = 4;
   string user_id = 5;
-  string partner_agent_id = 6; // was field #100 in v2
+  string partner_agent_id = 6;
   string internal_key = 7;
   int64 agent_sid = 8;
   int64 client_sid = 9;
@@ -261,8 +242,6 @@ message TransferInstance {
 
   TransferType transfer_type = 6;
   TransferResult transfer_result = 7;
-
-  // Initiation flags. In v2 these were ambiguous booleans.
   TransferInitiation initiation = 8;
 
   google.protobuf.Timestamp create_time = 10;
@@ -276,7 +255,6 @@ message TransferInstance {
   google.protobuf.Duration external_duration = 21;
   google.protobuf.Duration full_duration = 22;
 
-  // Source of the transfer (the agent initiating).
   message Source {
     int64 call_sid = 1;
     CallType call_type = 2;
@@ -287,8 +265,6 @@ message TransferInstance {
     int64 agent_call_sid = 7;
   }
 
-  // Destination of the transfer. Exactly one must be set.
-  // Skills apply only to queue-based destinations.
   message Destination {
     oneof target {
       AgentTarget agent = 1;
@@ -309,8 +285,6 @@ message TransferInstance {
       string conversation_id = 4;
     }
 
-    // Queue-based routing with skill requirements.
-    // Replaces the loose map<string,bool> that sat outside the oneof in v2.
     message QueueTarget {
       map<string, int64> required_skills = 1;
     }
@@ -335,8 +309,6 @@ message TransferInstance {
     TRANSFER_RESULT_DESTINATION_HANGUP = 4;
   }
 
-  // Replaces the two ambiguous boolean flags (start_as_pending,
-  // started_as_conference) with an explicit enum.
   enum TransferInitiation {
     TRANSFER_INITIATION_UNSPECIFIED = 0;
     TRANSFER_INITIATION_DIRECT = 1;
@@ -362,7 +334,7 @@ message CallRecording {
   }
 }
 
-message Task {
+message ExileTask {
   int64 task_sid = 1;
   int64 task_group_sid = 2;
   string org_id = 3;
@@ -411,17 +383,10 @@ message Agent {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Skill
-// ---------------------------------------------------------------------------
-
 message Skill {
   string skill_id = 1;
   string name = 2;
   string description = 3;
-  // Only set when the skill is assigned to an agent. v2 had this as a
-  // non-optional int64, making it impossible to distinguish "not assigned"
-  // from "proficiency = 0".
   optional int64 proficiency = 4;
 }
 

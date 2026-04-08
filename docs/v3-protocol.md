@@ -40,14 +40,17 @@ Client                                          Server
 
 ```
 tcnapi/exile/
-  types/v3/types.proto          Shared entity types (Pool, Record, Agent, events, enums)
-  worker/v3/service.proto       WorkerService — the unified work stream
-  agent/v3/service.proto        AgentService — agent management + skills
-  call/v3/service.proto         CallService — dialing, transfers, hold, recording
-  recording/v3/service.proto    RecordingService — voice recording search/retrieval
-  scrublist/v3/service.proto    ScrubListService — content blocking lists
-  config/v3/service.proto       ConfigService — configuration, certs, logging
+  v3/
+    types.proto         Shared entity types (Pool, Record, Agent, events, enums)
+    worker.proto        WorkerService — the unified work stream
+    agent.proto         AgentService — agent management + skills
+    call.proto          CallService — dialing, transfers, hold, recording
+    recording.proto     RecordingService — voice recording search/retrieval
+    scrublist.proto     ScrubListService — content blocking lists
+    config.proto        ConfigService — configuration, certs, logging
 ```
+
+All v3 protos share a single package: `tcnapi.exile.v3`. Types defined in `types.proto` are referenced directly (no cross-package imports).
 
 The v2 protos (`core/v2/`, `gate/v2/`) remain unchanged for backward compatibility during migration.
 

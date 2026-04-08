@@ -1,70 +1,59 @@
 // Voice recording search and retrieval service.
-//
-// Extracted from gate/v2 GateService.
-//
-// Changes from v2:
-//   - GetVoiceRecordingDownloadLink changed from GET-with-body to POST.
-//   - SearchVoiceRecordings supports pagination instead of streaming-only.
 
 syntax = "proto3";
 
-package tcnapi.exile.recording.v3;
-
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/recording/v3;recordingv3";
+package tcnapi.exile.v3;
 
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "tcnapi/exile/types/v3/types.proto";
+import "tcnapi/exile/v3/types.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option java_multiple_files = true;
 
 service RecordingService {
   rpc SearchVoiceRecordings(SearchVoiceRecordingsRequest) returns (SearchVoiceRecordingsResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/recording/v3/search"
+      post: "/tcnapi/exile/v3/recordings/search"
       body: "*"
     };
   }
 
   rpc GetDownloadLink(GetDownloadLinkRequest) returns (GetDownloadLinkResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/recording/v3/download_link"
+      post: "/tcnapi/exile/v3/recordings/download_link"
       body: "*"
     };
   }
 
   rpc ListSearchableFields(ListSearchableFieldsRequest) returns (ListSearchableFieldsResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/recording/v3/searchable_fields"
-    };
+    option (google.api.http) = {get: "/tcnapi/exile/v3/recordings/searchable_fields"};
   }
 
   rpc CreateLabel(CreateLabelRequest) returns (CreateLabelResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/recording/v3/labels"
+      post: "/tcnapi/exile/v3/recordings/labels"
       body: "*"
     };
   }
 }
 
-// ---------------------------------------------------------------------------
-// Messages
-// ---------------------------------------------------------------------------
-
 message SearchVoiceRecordingsRequest {
-  repeated types.v3.Filter filters = 1;
+  repeated Filter filters = 1;
   string page_token = 2;
   int32 page_size = 3;
 }
 
 message SearchVoiceRecordingsResponse {
-  repeated Recording recordings = 1;
+  repeated VoiceRecording recordings = 1;
   string next_page_token = 2;
 }
 
-message Recording {
+message VoiceRecording {
   string recording_id = 1;
   int64 call_sid = 2;
-  types.v3.CallType call_type = 3;
+  CallType call_type = 3;
   google.protobuf.Duration start_offset = 4;
   google.protobuf.Duration end_offset = 5;
   google.protobuf.Timestamp start_time = 6;
@@ -89,14 +78,13 @@ message GetDownloadLinkResponse {
 }
 
 message ListSearchableFieldsRequest {}
-
 message ListSearchableFieldsResponse {
   repeated string fields = 1;
 }
 
 message CreateLabelRequest {
   int64 call_sid = 1;
-  types.v3.CallType call_type = 2;
+  CallType call_type = 2;
   string key = 3;
   string value = 4;
 }

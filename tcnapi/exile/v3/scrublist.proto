@@ -1,54 +1,50 @@
 // Scrub list management service.
-//
-// Extracted from gate/v2 GateService.
 
 syntax = "proto3";
 
-package tcnapi.exile.scrublist.v3;
-
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/scrublist/v3;scrublistv3";
+package tcnapi.exile.v3;
 
 import "google/api/annotations.proto";
-import "tcnapi/exile/types/v3/types.proto";
+import "tcnapi/exile/v3/types.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option java_multiple_files = true;
 
 service ScrubListService {
   rpc ListScrubLists(ListScrubListsRequest) returns (ListScrubListsResponse) {
-    option (google.api.http) = {
-      get: "/tcnapi/exile/scrublist/v3/scrublists"
-    };
+    option (google.api.http) = {get: "/tcnapi/exile/v3/scrublists"};
   }
 
   rpc AddEntries(AddEntriesRequest) returns (AddEntriesResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/scrublist/v3/scrublists/{scrub_list_id}/entries"
+      post: "/tcnapi/exile/v3/scrublists/{scrub_list_id}/entries"
       body: "*"
     };
   }
 
   rpc UpdateEntry(UpdateEntryRequest) returns (UpdateEntryResponse) {
     option (google.api.http) = {
-      patch: "/tcnapi/exile/scrublist/v3/scrublists/{scrub_list_id}/entries/{content}"
+      patch: "/tcnapi/exile/v3/scrublists/{scrub_list_id}/entries/{content}"
       body: "*"
     };
   }
 
   rpc RemoveEntries(RemoveEntriesRequest) returns (RemoveEntriesResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/scrublist/v3/scrublists/{scrub_list_id}/entries:remove"
+      post: "/tcnapi/exile/v3/scrublists/{scrub_list_id}/entries:remove"
       body: "*"
     };
   }
 }
 
 message ListScrubListsRequest {}
-
 message ListScrubListsResponse {
-  repeated types.v3.ScrubList scrub_lists = 1;
+  repeated ScrubList scrub_lists = 1;
 }
 
 message AddEntriesRequest {
   string scrub_list_id = 1;
-  repeated types.v3.ScrubListEntry entries = 2;
+  repeated ScrubListEntry entries = 2;
   optional string default_country_code = 3;
 }
 
@@ -56,7 +52,7 @@ message AddEntriesResponse {}
 
 message UpdateEntryRequest {
   string scrub_list_id = 1;
-  types.v3.ScrubListEntry entry = 2;
+  ScrubListEntry entry = 2;
 }
 
 message UpdateEntryResponse {}
