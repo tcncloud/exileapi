@@ -1,0 +1,215 @@
+// Agent management service.
+
+syntax = "proto3";
+
+package tcnapi.exile.v3;
+
+import "google/api/annotations.proto";
+import "tcnapi/exile/v3/types.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option java_multiple_files = true;
+
+service AgentService {
+  rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}"};
+  }
+
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/v3/agents"};
+  }
+
+  rpc UpsertAgent(UpsertAgentRequest) returns (UpsertAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/v3/agents/{partner_agent_id}"
+      body: "*"
+    };
+  }
+
+  rpc SetAgentCredentials(SetAgentCredentialsRequest) returns (SetAgentCredentialsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/credentials"
+      body: "*"
+    };
+  }
+
+  rpc UpdateAgentStatus(UpdateAgentStatusRequest) returns (UpdateAgentStatusResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/status"
+      body: "*"
+    };
+  }
+
+  rpc GetAgentStatus(GetAgentStatusRequest) returns (GetAgentStatusResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}/status"};
+  }
+
+  rpc MuteAgent(MuteAgentRequest) returns (MuteAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/mute"
+      body: "*"
+    };
+  }
+
+  rpc UnmuteAgent(UnmuteAgentRequest) returns (UnmuteAgentResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/unmute"
+      body: "*"
+    };
+  }
+
+  rpc AddAgentCallResponse(AddAgentCallResponseRequest) returns (AddAgentCallResponseResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/call_responses"
+      body: "*"
+    };
+  }
+
+  rpc ListHuntGroupPauseCodes(ListHuntGroupPauseCodesRequest) returns (ListHuntGroupPauseCodesResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}/pause_codes"};
+  }
+
+  rpc ListSkills(ListSkillsRequest) returns (ListSkillsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/v3/skills"};
+  }
+
+  rpc ListAgentSkills(ListAgentSkillsRequest) returns (ListAgentSkillsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/v3/agents/{partner_agent_id}/skills"};
+  }
+
+  rpc AssignAgentSkill(AssignAgentSkillRequest) returns (AssignAgentSkillResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/v3/agents/{partner_agent_id}/skills"
+      body: "*"
+    };
+  }
+
+  rpc UnassignAgentSkill(UnassignAgentSkillRequest) returns (UnassignAgentSkillResponse) {
+    option (google.api.http) = {delete: "/tcnapi/exile/v3/agents/{partner_agent_id}/skills/{skill_id}"};
+  }
+}
+
+message GetAgentRequest {
+  oneof identifier {
+    string partner_agent_id = 1;
+    string user_id = 2;
+  }
+}
+
+message GetAgentResponse {
+  Agent agent = 1;
+}
+
+message ListAgentsRequest {
+  optional bool logged_in = 1;
+  optional AgentState state = 2;
+  bool include_recording_status = 3;
+  string page_token = 4;
+  int32 page_size = 5;
+}
+
+message ListAgentsResponse {
+  repeated Agent agents = 1;
+  string next_page_token = 2;
+}
+
+message UpsertAgentRequest {
+  string partner_agent_id = 1;
+  string username = 2;
+  string first_name = 3;
+  string last_name = 4;
+}
+
+message UpsertAgentResponse {
+  Agent agent = 1;
+}
+
+message SetAgentCredentialsRequest {
+  string partner_agent_id = 1;
+  string password = 2;
+}
+
+message SetAgentCredentialsResponse {}
+
+message UpdateAgentStatusRequest {
+  string partner_agent_id = 1;
+  AgentState new_state = 2;
+  string reason = 3;
+}
+
+message UpdateAgentStatusResponse {}
+
+message GetAgentStatusRequest {
+  string partner_agent_id = 1;
+}
+
+message GetAgentStatusResponse {
+  string partner_agent_id = 1;
+  AgentState agent_state = 2;
+  string current_session_id = 3;
+  optional Agent.ConnectedParty connected_party = 4;
+  bool is_muted = 5;
+  bool is_recording = 6;
+}
+
+message MuteAgentRequest {
+  string partner_agent_id = 1;
+}
+message MuteAgentResponse {}
+message UnmuteAgentRequest {
+  string partner_agent_id = 1;
+}
+message UnmuteAgentResponse {}
+
+message AddAgentCallResponseRequest {
+  string partner_agent_id = 1;
+  int64 call_sid = 2;
+  CallType call_type = 3;
+  string current_session_id = 4;
+  string key = 5;
+  string value = 6;
+}
+
+message AddAgentCallResponseResponse {}
+
+message ListHuntGroupPauseCodesRequest {
+  string partner_agent_id = 1;
+}
+
+message ListHuntGroupPauseCodesResponse {
+  string name = 1;
+  string description = 2;
+  repeated PauseCode pause_codes = 3;
+
+  message PauseCode {
+    string code = 1;
+    string description = 2;
+  }
+}
+
+message ListSkillsRequest {}
+message ListSkillsResponse {
+  repeated Skill skills = 1;
+}
+
+message ListAgentSkillsRequest {
+  string partner_agent_id = 1;
+}
+message ListAgentSkillsResponse {
+  repeated Skill skills = 1;
+}
+
+message AssignAgentSkillRequest {
+  string partner_agent_id = 1;
+  string skill_id = 2;
+  int64 proficiency = 3;
+}
+
+message AssignAgentSkillResponse {}
+
+message UnassignAgentSkillRequest {
+  string partner_agent_id = 1;
+  string skill_id = 2;
+}
+
+message UnassignAgentSkillResponse {}

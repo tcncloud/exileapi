@@ -1,0 +1,418 @@
+// Shared entity types for the Exile platform.
+//
+// Fixes from core/v2 and gate/v2:
+//   - Parallel arrays (task_data_keys/values) replaced with repeated TaskData
+//   - call_type changed from string to CallType enum
+//   - Filter.Operator unified with SearchOption.Operator
+//   - Duration fields use google.protobuf.Duration
+//   - Skill.proficiency marked optional
+//   - Removed unused AgentEvent/CallerEvent (orphaned in v2 too)
+//   - Result enum categorized into outcome + detail
+
+syntax = "proto3";
+
+package tcnapi.exile.v3;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option java_multiple_files = true;
+
+// ---------------------------------------------------------------------------
+// Core data types
+// ---------------------------------------------------------------------------
+
+message Pool {
+  string pool_id = 1;
+  string description = 2;
+  PoolStatus status = 3;
+  int64 record_count = 4;
+
+  enum PoolStatus {
+    POOL_STATUS_UNSPECIFIED = 0;
+    POOL_STATUS_READY = 1;
+    POOL_STATUS_NOT_READY = 2;
+    POOL_STATUS_BUSY = 3;
+  }
+}
+
+message Record {
+  string pool_id = 1;
+  string record_id = 2;
+  google.protobuf.Struct payload = 3;
+}
+
+message Field {
+  string field_name = 1;
+  string field_value = 2;
+  string pool_id = 3;
+  string record_id = 4;
+}
+
+message TaskData {
+  string key = 1;
+  google.protobuf.Value value = 2;
+}
+
+message Filter {
+  string field = 1;
+  Operator operator = 2;
+  string value = 3;
+
+  enum Operator {
+    OPERATOR_UNSPECIFIED = 0;
+    OPERATOR_EQUAL = 1;
+    OPERATOR_NOT_EQUAL = 2;
+    OPERATOR_CONTAINS = 3;
+    OPERATOR_GREATER_THAN = 4;
+    OPERATOR_LESS_THAN = 5;
+    OPERATOR_IN = 6;
+    OPERATOR_EXISTS = 7;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Call & telephony enums
+// ---------------------------------------------------------------------------
+
+enum CallType {
+  CALL_TYPE_UNSPECIFIED = 0;
+  CALL_TYPE_INBOUND = 1;
+  CALL_TYPE_OUTBOUND = 2;
+  CALL_TYPE_PREVIEW = 3;
+  CALL_TYPE_MANUAL = 4;
+  CALL_TYPE_MAC = 5;
+}
+
+message TelephonyOutcome {
+  Category category = 1;
+  Detail detail = 2;
+
+  enum Category {
+    CATEGORY_UNSPECIFIED = 0;
+    CATEGORY_ANSWERED = 1;
+    CATEGORY_NO_ANSWER = 2;
+    CATEGORY_BUSY = 3;
+    CATEGORY_MACHINE = 4;
+    CATEGORY_INVALID = 5;
+    CATEGORY_FAILED = 6;
+    CATEGORY_CANCELED = 7;
+    CATEGORY_PENDING = 8;
+  }
+
+  enum Detail {
+    DETAIL_UNSPECIFIED = 0;
+    DETAIL_GENERIC = 1;
+    DETAIL_LINKCALL = 2;
+    DETAIL_LINKCALL_NO_AGENT = 3;
+    DETAIL_MACHINE_HANGUP = 4;
+    DETAIL_MACHINE_DELIVERED = 5;
+    DETAIL_NO_ANSWER_TIMEOUT = 6;
+    DETAIL_INVALID_SIP_INVITE = 7;
+    DETAIL_INVALID_DESTINATION = 8;
+    DETAIL_DISCONNECTED_NUMBER = 9;
+    DETAIL_DNC_CHECK_PERSONAL = 10;
+    DETAIL_DNC_CHECK_NATIONAL = 11;
+    DETAIL_COMPLIANCE_BLOCK = 12;
+    DETAIL_CARRIER_REJECT = 13;
+    DETAIL_INTERNAL_ERROR = 14;
+    DETAIL_AGENT_CANCEL = 15;
+    DETAIL_SYSTEM_CANCEL = 16;
+  }
+}
+
+enum TelephonyStatus {
+  TELEPHONY_STATUS_UNSPECIFIED = 0;
+  TELEPHONY_STATUS_SCHEDULED = 1;
+  TELEPHONY_STATUS_RUNNING = 2;
+  TELEPHONY_STATUS_COMPLETED = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Agent state
+// ---------------------------------------------------------------------------
+
+enum AgentState {
+  AGENT_STATE_UNSPECIFIED = 0;
+  AGENT_STATE_IDLE = 1;
+  AGENT_STATE_READY = 2;
+  AGENT_STATE_PEERED = 3;
+  AGENT_STATE_PAUSED = 4;
+  AGENT_STATE_WRAPUP = 5;
+  AGENT_STATE_PREPARING_PREVIEW = 6;
+  AGENT_STATE_PREVIEWING = 7;
+  AGENT_STATE_PREPARING_MANUAL = 8;
+  AGENT_STATE_DIALING = 9;
+  AGENT_STATE_INTERCOM = 10;
+  AGENT_STATE_WARM_TRANSFER_PENDING = 11;
+  AGENT_STATE_WARM_TRANSFER_ACTIVE = 12;
+  AGENT_STATE_COLD_TRANSFER_ACTIVE = 13;
+  AGENT_STATE_CONFERENCE_ACTIVE = 14;
+  AGENT_STATE_LOGGED_OUT = 15;
+  AGENT_STATE_SUSPENDED = 16;
+  AGENT_STATE_EXTERNAL_TRANSFER = 17;
+  AGENT_STATE_CALLBACK_SUSPENDED = 18;
+}
+
+// ---------------------------------------------------------------------------
+// Telephony & agent entities
+// ---------------------------------------------------------------------------
+
+message AgentCall {
+  int64 agent_call_sid = 1;
+  int64 call_sid = 2;
+  CallType call_type = 3;
+  string org_id = 4;
+  string user_id = 5;
+  string partner_agent_id = 6;
+  string internal_key = 7;
+
+  google.protobuf.Duration talk_duration = 10;
+  google.protobuf.Duration wait_duration = 11;
+  google.protobuf.Duration wrapup_duration = 12;
+  google.protobuf.Duration pause_duration = 13;
+  google.protobuf.Duration transfer_duration = 14;
+  google.protobuf.Duration manual_duration = 15;
+  google.protobuf.Duration preview_duration = 16;
+  google.protobuf.Duration hold_duration = 17;
+  google.protobuf.Duration agent_wait_duration = 18;
+  google.protobuf.Duration suspended_duration = 19;
+  google.protobuf.Duration external_transfer_duration = 20;
+
+  google.protobuf.Timestamp create_time = 30;
+  google.protobuf.Timestamp update_time = 31;
+
+  repeated TaskData task_data = 40;
+}
+
+message TelephonyResult {
+  int64 call_sid = 1;
+  CallType call_type = 2;
+  string org_id = 3;
+  string internal_key = 4;
+  string caller_id = 5;
+  string phone_number = 6;
+  string pool_id = 7;
+  string record_id = 8;
+  int64 client_sid = 9;
+
+  TelephonyStatus status = 10;
+  TelephonyOutcome outcome = 11;
+
+  google.protobuf.Duration delivery_length = 12;
+  google.protobuf.Duration linkback_length = 13;
+
+  google.protobuf.Timestamp create_time = 20;
+  google.protobuf.Timestamp update_time = 21;
+  google.protobuf.Timestamp start_time = 22;
+  google.protobuf.Timestamp end_time = 23;
+
+  repeated TaskData task_data = 30;
+
+  optional int64 old_call_sid = 40;
+  optional CallType old_call_type = 41;
+  optional google.protobuf.Timestamp task_waiting_until = 42;
+}
+
+message AgentResponse {
+  int64 agent_call_response_sid = 1;
+  int64 call_sid = 2;
+  CallType call_type = 3;
+  string org_id = 4;
+  string user_id = 5;
+  string partner_agent_id = 6;
+  string internal_key = 7;
+  int64 agent_sid = 8;
+  int64 client_sid = 9;
+  string response_key = 10;
+  string response_value = 11;
+  google.protobuf.Timestamp create_time = 20;
+  google.protobuf.Timestamp update_time = 21;
+}
+
+message TransferInstance {
+  int64 client_sid = 1;
+  string org_id = 2;
+  int64 transfer_instance_id = 3;
+
+  Source source = 4;
+  Destination destination = 5;
+
+  TransferType transfer_type = 6;
+  TransferResult transfer_result = 7;
+  TransferInitiation initiation = 8;
+
+  google.protobuf.Timestamp create_time = 10;
+  google.protobuf.Timestamp transfer_time = 11;
+  google.protobuf.Timestamp accept_time = 12;
+  google.protobuf.Timestamp hangup_time = 13;
+  google.protobuf.Timestamp end_time = 14;
+  google.protobuf.Timestamp update_time = 15;
+
+  google.protobuf.Duration pending_duration = 20;
+  google.protobuf.Duration external_duration = 21;
+  google.protobuf.Duration full_duration = 22;
+
+  message Source {
+    int64 call_sid = 1;
+    CallType call_type = 2;
+    string partner_agent_id = 3;
+    string user_id = 4;
+    string conversation_id = 5;
+    int64 session_sid = 6;
+    int64 agent_call_sid = 7;
+  }
+
+  message Destination {
+    oneof target {
+      AgentTarget agent = 1;
+      OutboundTarget outbound = 2;
+      QueueTarget queue = 3;
+    }
+
+    message AgentTarget {
+      int64 session_sid = 1;
+      string partner_agent_id = 2;
+      string user_id = 3;
+    }
+
+    message OutboundTarget {
+      string phone_number = 1;
+      int64 call_sid = 2;
+      CallType call_type = 3;
+      string conversation_id = 4;
+    }
+
+    message QueueTarget {
+      map<string, int64> required_skills = 1;
+    }
+  }
+
+  enum TransferType {
+    TRANSFER_TYPE_UNSPECIFIED = 0;
+    TRANSFER_TYPE_WARM_AGENT = 1;
+    TRANSFER_TYPE_WARM_CALLER = 2;
+    TRANSFER_TYPE_WARM_OUTBOUND = 3;
+    TRANSFER_TYPE_WARM_SKILL = 4;
+    TRANSFER_TYPE_COLD_AGENT = 5;
+    TRANSFER_TYPE_COLD_OUTBOUND = 6;
+    TRANSFER_TYPE_CONFERENCE = 7;
+  }
+
+  enum TransferResult {
+    TRANSFER_RESULT_UNSPECIFIED = 0;
+    TRANSFER_RESULT_ACCEPTED = 1;
+    TRANSFER_RESULT_AGENT_CANCEL = 2;
+    TRANSFER_RESULT_CALLER_HANGUP = 3;
+    TRANSFER_RESULT_DESTINATION_HANGUP = 4;
+  }
+
+  enum TransferInitiation {
+    TRANSFER_INITIATION_UNSPECIFIED = 0;
+    TRANSFER_INITIATION_DIRECT = 1;
+    TRANSFER_INITIATION_PENDING = 2;
+    TRANSFER_INITIATION_CONFERENCE = 3;
+  }
+}
+
+message CallRecording {
+  string recording_id = 1;
+  string org_id = 2;
+  int64 call_sid = 3;
+  CallType call_type = 4;
+  google.protobuf.Duration duration = 5;
+  RecordingType recording_type = 6;
+  google.protobuf.Timestamp start_time = 7;
+
+  enum RecordingType {
+    RECORDING_TYPE_UNSPECIFIED = 0;
+    RECORDING_TYPE_TCN = 1;
+    RECORDING_TYPE_EXTERNAL = 2;
+    RECORDING_TYPE_VOICEMAIL = 3;
+  }
+}
+
+message ExileTask {
+  int64 task_sid = 1;
+  int64 task_group_sid = 2;
+  string org_id = 3;
+  int64 client_sid = 4;
+  string pool_id = 5;
+  string record_id = 6;
+  int64 attempts = 7;
+  TaskStatus status = 8;
+  google.protobuf.Timestamp create_time = 10;
+  google.protobuf.Timestamp update_time = 11;
+
+  enum TaskStatus {
+    TASK_STATUS_UNSPECIFIED = 0;
+    TASK_STATUS_SCHEDULED = 1;
+    TASK_STATUS_WAITING = 2;
+    TASK_STATUS_PREPARING = 3;
+    TASK_STATUS_RUNNING = 4;
+    TASK_STATUS_COMPLETED = 5;
+    TASK_STATUS_CANCELLED_SYSTEM = 6;
+    TASK_STATUS_CANCELLED_ADMIN = 7;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Agent entity
+// ---------------------------------------------------------------------------
+
+message Agent {
+  string user_id = 1;
+  string org_id = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string username = 5;
+  string partner_agent_id = 6;
+  string current_session_id = 7;
+  AgentState agent_state = 8;
+  bool is_logged_in = 9;
+  bool is_muted = 10;
+  bool is_recording = 11;
+  optional ConnectedParty connected_party = 12;
+
+  message ConnectedParty {
+    int64 call_sid = 1;
+    CallType call_type = 2;
+    bool is_inbound = 3;
+  }
+}
+
+message Skill {
+  string skill_id = 1;
+  string name = 2;
+  string description = 3;
+  optional int64 proficiency = 4;
+}
+
+// ---------------------------------------------------------------------------
+// Scrub list
+// ---------------------------------------------------------------------------
+
+message ScrubList {
+  string scrub_list_id = 1;
+  bool read_only = 2;
+  ContentType content_type = 3;
+
+  enum ContentType {
+    CONTENT_TYPE_UNSPECIFIED = 0;
+    CONTENT_TYPE_PHONE_NUMBER = 1;
+    CONTENT_TYPE_EMAIL = 2;
+    CONTENT_TYPE_SMS = 3;
+    CONTENT_TYPE_ACCOUNT_NUMBER = 4;
+    CONTENT_TYPE_WHATSAPP = 5;
+    CONTENT_TYPE_OTHER = 6;
+  }
+}
+
+message ScrubListEntry {
+  string content = 1;
+  optional google.protobuf.Timestamp expiration = 2;
+  optional string notes = 3;
+  optional string country_code = 4;
+}

@@ -1,0 +1,362 @@
+// Worker service: unified work stream protocol.
+//
+// Replaces the three separate connections in gate/v2:
+//   - JobQueueStream (bidirectional gRPC) — job dispatch + ACK
+//   - EventStream (bidirectional gRPC) — event dispatch + ACK
+//   - SubmitJobResults (unary RPC) — result submission
+
+syntax = "proto3";
+
+package tcnapi.exile.v3;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "tcnapi/exile/v3/types.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option java_multiple_files = true;
+
+service WorkerService {
+  rpc WorkStream(stream WorkRequest) returns (stream WorkResponse);
+}
+
+// ---------------------------------------------------------------------------
+// Client -> Server
+// ---------------------------------------------------------------------------
+
+message WorkRequest {
+  oneof action {
+    Register register = 1;
+    Pull pull = 2;
+    Result result = 3;
+    Ack ack = 4;
+    Nack nack = 5;
+    ExtendLease extend_lease = 6;
+    Heartbeat heartbeat = 7;
+  }
+}
+
+message Register {
+  string client_name = 1;
+  string client_version = 2;
+  repeated WorkType capabilities = 3;
+}
+
+message Pull {
+  int32 max_items = 1;
+}
+
+message Result {
+  string work_id = 1;
+  bool final = 2;
+
+  oneof payload {
+    ListPoolsResult list_pools = 10;
+    GetPoolStatusResult get_pool_status = 11;
+    GetPoolRecordsResult get_pool_records = 12;
+    SearchRecordsResult search_records = 13;
+    GetRecordFieldsResult get_record_fields = 14;
+    SetRecordFieldsResult set_record_fields = 15;
+    CreatePaymentResult create_payment = 16;
+    PopAccountResult pop_account = 17;
+    ExecuteLogicResult execute_logic = 18;
+    InfoResult info = 19;
+    ShutdownResult shutdown = 20;
+    LoggingResult logging = 21;
+    DiagnosticsResult diagnostics = 22;
+    ListTenantLogsResult list_tenant_logs = 23;
+    SetLogLevelResult set_log_level = 24;
+    ErrorResult error = 30;
+  }
+}
+
+message Ack {
+  repeated string work_ids = 1;
+}
+
+message Nack {
+  string work_id = 1;
+  string reason = 2;
+}
+
+message ExtendLease {
+  string work_id = 1;
+  google.protobuf.Duration extension = 2;
+}
+
+message Heartbeat {
+  google.protobuf.Timestamp client_time = 1;
+}
+
+// ---------------------------------------------------------------------------
+// Server -> Client
+// ---------------------------------------------------------------------------
+
+message WorkResponse {
+  oneof payload {
+    Registered registered = 1;
+    WorkItem work_item = 2;
+    ResultAccepted result_accepted = 3;
+    LeaseExtended lease_extended = 4;
+    LeaseExpiring lease_expiring = 5;
+    Heartbeat heartbeat = 6;
+    StreamError error = 7;
+    NackAccepted nack_accepted = 8;
+  }
+}
+
+message Registered {
+  string client_id = 1;
+  google.protobuf.Duration heartbeat_interval = 2;
+  google.protobuf.Duration default_lease = 3;
+  int32 max_inflight = 4;
+}
+
+message WorkItem {
+  string work_id = 1;
+  google.protobuf.Timestamp deadline = 2;
+  WorkCategory category = 3;
+  int32 attempt = 4;
+
+  oneof task {
+    // Jobs (require Result)
+    ListPoolsTask list_pools = 10;
+    GetPoolStatusTask get_pool_status = 11;
+    GetPoolRecordsTask get_pool_records = 12;
+    SearchRecordsTask search_records = 13;
+    GetRecordFieldsTask get_record_fields = 14;
+    SetRecordFieldsTask set_record_fields = 15;
+    CreatePaymentTask create_payment = 16;
+    PopAccountTask pop_account = 17;
+    ExecuteLogicTask execute_logic = 18;
+    InfoTask info = 19;
+    ShutdownTask shutdown = 20;
+    LoggingTask logging = 21;
+    DiagnosticsTask diagnostics = 22;
+    ListTenantLogsTask list_tenant_logs = 23;
+    SetLogLevelTask set_log_level = 24;
+
+    // Events (require Ack only)
+    AgentCall agent_call = 50;
+    TelephonyResult telephony_result = 51;
+    AgentResponse agent_response = 52;
+    TransferInstance transfer_instance = 53;
+    CallRecording call_recording = 54;
+    ExileTask exile_task = 55;
+  }
+}
+
+message ResultAccepted {
+  string work_id = 1;
+}
+
+message LeaseExtended {
+  string work_id = 1;
+  google.protobuf.Timestamp new_deadline = 2;
+}
+
+message LeaseExpiring {
+  string work_id = 1;
+  google.protobuf.Timestamp deadline = 2;
+  google.protobuf.Duration remaining = 3;
+}
+
+message NackAccepted {
+  string work_id = 1;
+}
+
+message StreamError {
+  string work_id = 1;
+  string code = 2;
+  string message = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Work categories and types
+// ---------------------------------------------------------------------------
+
+enum WorkCategory {
+  WORK_CATEGORY_UNSPECIFIED = 0;
+  WORK_CATEGORY_JOB = 1;
+  WORK_CATEGORY_EVENT = 2;
+}
+
+enum WorkType {
+  WORK_TYPE_UNSPECIFIED = 0;
+  WORK_TYPE_LIST_POOLS = 1;
+  WORK_TYPE_GET_POOL_STATUS = 2;
+  WORK_TYPE_GET_POOL_RECORDS = 3;
+  WORK_TYPE_SEARCH_RECORDS = 4;
+  WORK_TYPE_GET_RECORD_FIELDS = 5;
+  WORK_TYPE_SET_RECORD_FIELDS = 6;
+  WORK_TYPE_CREATE_PAYMENT = 7;
+  WORK_TYPE_POP_ACCOUNT = 8;
+  WORK_TYPE_EXECUTE_LOGIC = 9;
+  WORK_TYPE_INFO = 10;
+  WORK_TYPE_SHUTDOWN = 11;
+  WORK_TYPE_LOGGING = 12;
+  WORK_TYPE_DIAGNOSTICS = 13;
+  WORK_TYPE_LIST_TENANT_LOGS = 14;
+  WORK_TYPE_SET_LOG_LEVEL = 15;
+  WORK_TYPE_AGENT_CALL = 50;
+  WORK_TYPE_TELEPHONY_RESULT = 51;
+  WORK_TYPE_AGENT_RESPONSE = 52;
+  WORK_TYPE_TRANSFER_INSTANCE = 53;
+  WORK_TYPE_CALL_RECORDING = 54;
+  WORK_TYPE_TASK = 55;
+}
+
+// ---------------------------------------------------------------------------
+// Job task payloads
+// ---------------------------------------------------------------------------
+
+message ListPoolsTask {}
+
+message GetPoolStatusTask {
+  string pool_id = 1;
+}
+
+message GetPoolRecordsTask {
+  string pool_id = 1;
+  string page_token = 2;
+  int32 page_size = 3;
+}
+
+message SearchRecordsTask {
+  repeated Filter filters = 1;
+  string page_token = 2;
+  int32 page_size = 3;
+}
+
+message GetRecordFieldsTask {
+  string pool_id = 1;
+  string record_id = 2;
+  repeated string field_names = 3;
+}
+
+message SetRecordFieldsTask {
+  string pool_id = 1;
+  string record_id = 2;
+  repeated Field fields = 3;
+}
+
+message CreatePaymentTask {
+  string pool_id = 1;
+  string record_id = 2;
+  google.protobuf.Struct payment_data = 3;
+}
+
+message PopAccountTask {
+  string pool_id = 1;
+  string record_id = 2;
+}
+
+message ExecuteLogicTask {
+  string logic_name = 1;
+  google.protobuf.Struct parameters = 2;
+}
+
+message InfoTask {}
+
+message ShutdownTask {
+  string reason = 1;
+}
+
+message LoggingTask {
+  string payload = 1;
+}
+
+message DiagnosticsTask {}
+
+message ListTenantLogsTask {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+  string page_token = 3;
+  int32 page_size = 4;
+}
+
+message SetLogLevelTask {
+  string logger_name = 1;
+  string level = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Job result payloads
+// ---------------------------------------------------------------------------
+
+message ListPoolsResult {
+  repeated Pool pools = 1;
+}
+
+message GetPoolStatusResult {
+  Pool pool = 1;
+}
+
+message GetPoolRecordsResult {
+  repeated Record records = 1;
+  string next_page_token = 2;
+}
+
+message SearchRecordsResult {
+  repeated Record records = 1;
+  string next_page_token = 2;
+}
+
+message GetRecordFieldsResult {
+  repeated Field fields = 1;
+}
+
+message SetRecordFieldsResult {
+  bool success = 1;
+}
+
+message CreatePaymentResult {
+  bool success = 1;
+  string payment_id = 2;
+}
+
+message PopAccountResult {
+  Record record = 1;
+}
+
+message ExecuteLogicResult {
+  google.protobuf.Struct output = 1;
+}
+
+message InfoResult {
+  string app_name = 1;
+  string app_version = 2;
+  google.protobuf.Struct metadata = 3;
+}
+
+message ShutdownResult {}
+
+message LoggingResult {}
+
+message DiagnosticsResult {
+  google.protobuf.Struct system_info = 1;
+  google.protobuf.Struct runtime_info = 2;
+  google.protobuf.Struct database_info = 3;
+  google.protobuf.Struct custom = 4;
+}
+
+message ListTenantLogsResult {
+  repeated LogEntry entries = 1;
+  string next_page_token = 2;
+
+  message LogEntry {
+    google.protobuf.Timestamp timestamp = 1;
+    string level = 2;
+    string logger = 3;
+    string message = 4;
+  }
+}
+
+message SetLogLevelResult {}
+
+message ErrorResult {
+  string message = 1;
+  string code = 2;
+  google.protobuf.Struct details = 3;
+}
