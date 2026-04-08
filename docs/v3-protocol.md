@@ -50,7 +50,7 @@ tcnapi/exile/
     config.proto        ConfigService — configuration, certs, logging
 ```
 
-All v3 protos share a single package: `tcnapi.exile.v3`. Types defined in `types.proto` are referenced directly (no cross-package imports).
+All v3 protos share a single package: `tcnapi.exile.gate.v3`. Types defined in `types.proto` are referenced directly (no cross-package imports).
 
 The v2 protos (`core/v2/`, `gate/v2/`) remain unchanged for backward compatibility during migration.
 

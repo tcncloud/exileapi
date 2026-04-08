@@ -2,41 +2,41 @@
 
 syntax = "proto3";
 
-package tcnapi.exile.v3;
+package tcnapi.exile.gate.v3;
 
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
-import "tcnapi/exile/v3/types.proto";
+import "tcnapi/exile/gate/v3/types.proto";
 
-option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/v3;exilev3";
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
 option java_multiple_files = true;
 
 service ConfigService {
   rpc GetClientConfiguration(GetClientConfigurationRequest) returns (GetClientConfigurationResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/client_configuration"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/client_configuration"};
   }
 
   rpc GetOrganizationInfo(GetOrganizationInfoRequest) returns (GetOrganizationInfoResponse) {
-    option (google.api.http) = {get: "/tcnapi/exile/v3/organization_info"};
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/organization_info"};
   }
 
   rpc RotateCertificate(RotateCertificateRequest) returns (RotateCertificateResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/rotate_certificate"
+      post: "/tcnapi/exile/gate/v3/rotate_certificate"
       body: "*"
     };
   }
 
   rpc Log(LogRequest) returns (LogResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/log"
+      post: "/tcnapi/exile/gate/v3/log"
       body: "*"
     };
   }
 
   rpc AddRecordToJourneyBuffer(AddRecordToJourneyBufferRequest) returns (AddRecordToJourneyBufferResponse) {
     option (google.api.http) = {
-      post: "/tcnapi/exile/v3/journey_buffer"
+      post: "/tcnapi/exile/gate/v3/journey_buffer"
       body: "*"
     };
   }
