@@ -1,0 +1,96 @@
+// Benchmark service for measuring protocol throughput and latency.
+
+syntax = "proto3";
+
+package tcnapi.exile.gate.v3;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
+option java_multiple_files = true;
+
+service BenchmarkService {
+  // Bidirectional stream benchmark. Client sends BenchmarkRequest messages,
+  // server responds with BenchmarkResponse messages as fast as possible.
+  // Use to measure sustained throughput and per-message latency.
+  rpc StreamBenchmark(stream BenchmarkRequest) returns (stream BenchmarkResponse);
+
+  // Unary ping-pong for measuring round-trip latency.
+  rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message BenchmarkRequest {
+  oneof action {
+    // Start the benchmark. Server will stream responses until Stop is sent.
+    StartBenchmark start = 1;
+    // Acknowledge receipt of a batch of messages. Server tracks throughput.
+    BenchmarkAck ack = 2;
+    // Stop the benchmark. Server closes the stream and returns stats.
+    StopBenchmark stop = 3;
+  }
+}
+
+// Configuration for the benchmark run.
+message StartBenchmark {
+  // Size of each response payload in bytes. 0 = minimal message.
+  int32 payload_size = 1;
+  // Maximum number of messages to send. 0 = unlimited (until Stop).
+  int64 max_messages = 2;
+  // Number of messages to send per batch before waiting for an ack.
+  // 0 = no flow control, send as fast as possible.
+  int32 batch_size = 3;
+}
+
+message BenchmarkAck {
+  // Number of messages received by the client since last ack.
+  int64 count = 1;
+}
+
+message StopBenchmark {}
+
+message BenchmarkResponse {
+  oneof payload {
+    // A benchmark data message.
+    BenchmarkMessage message = 1;
+    // Final stats when the benchmark ends.
+    BenchmarkStats stats = 2;
+  }
+}
+
+message BenchmarkMessage {
+  // Sequence number (0-indexed).
+  int64 sequence = 1;
+  // Server timestamp when the message was sent.
+  google.protobuf.Timestamp send_time = 2;
+  // Payload of configurable size for bandwidth testing.
+  bytes data = 3;
+}
+
+message BenchmarkStats {
+  // Total messages sent by server.
+  int64 total_messages = 1;
+  // Total bytes sent by server (payload only).
+  int64 total_bytes = 2;
+  // Duration of the benchmark in milliseconds.
+  int64 duration_ms = 3;
+  // Messages per second (server-side calculation).
+  double messages_per_second = 4;
+  // Megabytes per second (server-side calculation).
+  double megabytes_per_second = 5;
+}
+
+message PingRequest {
+  // Client timestamp for measuring one-way latency.
+  google.protobuf.Timestamp client_time = 1;
+  // Optional payload for measuring serialization overhead.
+  bytes payload = 2;
+}
+
+message PingResponse {
+  // Echo of client timestamp.
+  google.protobuf.Timestamp client_time = 1;
+  // Server timestamp.
+  google.protobuf.Timestamp server_time = 2;
+  // Echo of payload.
+  bytes payload = 3;
+}
