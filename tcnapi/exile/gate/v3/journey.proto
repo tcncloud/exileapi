@@ -1,0 +1,36 @@
+// Journey buffer service.
+
+syntax = "proto3";
+
+package tcnapi.exile.gate.v3;
+
+import "google/api/annotations.proto";
+import "tcnapi/exile/gate/v3/types.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
+option java_multiple_files = true;
+
+service JourneyService {
+  rpc AddRecordToJourneyBuffer(AddRecordToJourneyBufferRequest) returns (AddRecordToJourneyBufferResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/journey_buffer"
+      body: "*"
+    };
+  }
+}
+
+message AddRecordToJourneyBufferRequest {
+  Record record = 1;
+}
+
+message AddRecordToJourneyBufferResponse {
+  JourneyBufferStatus status = 1;
+
+  enum JourneyBufferStatus {
+    JOURNEY_BUFFER_STATUS_UNSPECIFIED = 0;
+    JOURNEY_BUFFER_STATUS_INSERTED = 1;
+    JOURNEY_BUFFER_STATUS_UPDATED = 2;
+    JOURNEY_BUFFER_STATUS_IGNORED = 3;
+    JOURNEY_BUFFER_STATUS_REJECTED = 4;
+  }
+}
