@@ -1,0 +1,132 @@
+// Telemetry service for client-reported metrics and logs.
+
+syntax = "proto3";
+
+package tcnapi.exile.gate.v3;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
+option java_multiple_files = true;
+
+service TelemetryService {
+  // Report a batch of metric data points collected by the client.
+  rpc ReportMetrics(ReportMetricsRequest) returns (ReportMetricsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/telemetry/metrics"
+      body: "*"
+    };
+  }
+
+  // Report a batch of structured log records from the client.
+  rpc ReportLogs(ReportLogsRequest) returns (ReportLogsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/telemetry/logs"
+      body: "*"
+    };
+  }
+}
+
+// Metric types supported by the telemetry service.
+enum MetricType {
+  METRIC_TYPE_UNSPECIFIED = 0;
+  // A point-in-time value (e.g., current heap usage, inflight count).
+  METRIC_TYPE_GAUGE = 1;
+  // A monotonically increasing cumulative value (e.g., total completed jobs).
+  METRIC_TYPE_SUM = 2;
+  // A distribution of values with configurable bucket boundaries.
+  METRIC_TYPE_HISTOGRAM = 3;
+}
+
+// Severity level for log records.
+enum LogLevel {
+  LOG_LEVEL_UNSPECIFIED = 0;
+  LOG_LEVEL_TRACE = 1;
+  LOG_LEVEL_DEBUG = 2;
+  LOG_LEVEL_INFO = 3;
+  LOG_LEVEL_WARN = 4;
+  LOG_LEVEL_ERROR = 5;
+}
+
+// A single metric data point.
+message MetricDataPoint {
+  // Metric name (e.g., "exile.work.completed", "exile.jvm.heap_used").
+  string name = 1;
+  // Human-readable description of the metric.
+  string description = 2;
+  // Unit of measurement (e.g., "bytes", "ms", "1").
+  string unit = 3;
+  // The kind of metric.
+  MetricType type = 4;
+  // Key-value attributes (dimensions/labels).
+  map<string, string> attributes = 5;
+  // Timestamp when this data point was collected.
+  google.protobuf.Timestamp time = 6;
+  // The metric value.
+  oneof value {
+    double double_value = 10;
+    int64 int_value = 11;
+    HistogramValue histogram_value = 12;
+  }
+}
+
+// A histogram distribution.
+message HistogramValue {
+  // Total number of observations.
+  int64 count = 1;
+  // Sum of all observed values.
+  double sum = 2;
+  // Upper boundary of each bucket (sorted, exclusive).
+  repeated double boundaries = 3;
+  // Count of observations in each bucket. Length = len(boundaries) + 1.
+  repeated int64 bucket_counts = 4;
+  // Minimum observed value.
+  double min = 5;
+  // Maximum observed value.
+  double max = 6;
+}
+
+// A structured log record.
+message LogRecord {
+  // Timestamp when the log event occurred.
+  google.protobuf.Timestamp time = 1;
+  // Severity level.
+  LogLevel level = 2;
+  // Logger name (e.g., "com.tcn.exile.WorkStreamClient").
+  string logger_name = 3;
+  // The log message.
+  string message = 4;
+  // Thread that produced the log event.
+  string thread_name = 5;
+  // Mapped Diagnostic Context (MDC) key-value pairs.
+  map<string, string> mdc = 6;
+  // Stack trace, if the log event includes a throwable.
+  string stack_trace = 7;
+}
+
+message ReportMetricsRequest {
+  // Client identifier (matches WorkStream client_id).
+  string client_id = 1;
+  // Time when the metrics batch was collected.
+  google.protobuf.Timestamp collection_time = 2;
+  // Batch of metric data points.
+  repeated MetricDataPoint data_points = 3;
+}
+
+message ReportMetricsResponse {
+  // Number of data points accepted by the server.
+  int32 accepted_count = 1;
+}
+
+message ReportLogsRequest {
+  // Client identifier (matches WorkStream client_id).
+  string client_id = 1;
+  // Batch of log records.
+  repeated LogRecord records = 2;
+}
+
+message ReportLogsResponse {
+  // Number of log records accepted by the server.
+  int32 accepted_count = 1;
+}
