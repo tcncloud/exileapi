@@ -103,6 +103,10 @@ message LogRecord {
   map<string, string> mdc = 6;
   // Stack trace, if the log event includes a throwable.
   string stack_trace = 7;
+  // W3C trace ID (32 hex chars) for correlating logs with distributed traces.
+  string trace_id = 8;
+  // W3C span ID (16 hex chars) for correlating logs with the active span.
+  string span_id = 9;
 }
 
 message ReportMetricsRequest {
