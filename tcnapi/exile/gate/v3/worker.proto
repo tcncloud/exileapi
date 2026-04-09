@@ -119,6 +119,11 @@ message WorkItem {
   WorkCategory category = 3;
   int32 attempt = 4;
 
+  // W3C Trace Context traceparent header for distributed trace propagation.
+  // Format: "00-{trace_id}-{span_id}-{flags}" (e.g., "00-abc123...-def456...-01").
+  // Set by the gate when dispatching from an incoming gRPC call.
+  string trace_parent = 5;
+
   oneof task {
     // Jobs (require Result)
     ListPoolsTask list_pools = 10;
