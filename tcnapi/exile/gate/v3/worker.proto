@@ -238,12 +238,14 @@ message GetRecordFieldsTask {
   string pool_id = 1;
   string record_id = 2;
   repeated string field_names = 3;
+  repeated Filter filters = 4;
 }
 
 message SetRecordFieldsTask {
   string pool_id = 1;
   string record_id = 2;
   repeated Field fields = 3;
+  repeated Filter filters = 4;
 }
 
 message CreatePaymentTask {
@@ -255,6 +257,10 @@ message CreatePaymentTask {
 message PopAccountTask {
   string pool_id = 1;
   string record_id = 2;
+  string partner_agent_id = 3;
+  int64 call_sid = 4;
+  CallType call_type = 5;
+  repeated Filter filters = 6;
 }
 
 message ExecuteLogicTask {
