@@ -47,4 +47,3 @@ This ensures that the definitions in the BSR are always up-to-date with the `mas
 
 ## Contributing
 
-[Add contribution guidelines here if applicable] 
