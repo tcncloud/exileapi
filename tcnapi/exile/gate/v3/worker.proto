@@ -124,6 +124,10 @@ message WorkItem {
   // Set by the gate when dispatching from an incoming gRPC call.
   string trace_parent = 5;
 
+  // Organization that owns this work item. Populated by the gate dispatcher
+  // from the job/event's owning org. JSON name is `orgId` (proto3 default).
+  string org_id = 6;
+
   oneof task {
     // Jobs (require Result)
     ListPoolsTask list_pools = 10;
