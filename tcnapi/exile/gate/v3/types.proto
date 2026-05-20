@@ -250,6 +250,8 @@ message TransferInstance {
   google.protobuf.Timestamp hangup_time = 13;
   google.protobuf.Timestamp end_time = 14;
   google.protobuf.Timestamp update_time = 15;
+  google.protobuf.Timestamp transfer_pending_start_time = 16;
+  google.protobuf.Timestamp transfer_external_end_time = 17;
 
   google.protobuf.Duration pending_duration = 20;
   google.protobuf.Duration external_duration = 21;
