@@ -34,6 +34,7 @@ message WorkRequest {
     Nack nack = 5;
     ExtendLease extend_lease = 6;
     Heartbeat heartbeat = 7;
+    PoolReady pool_ready = 8;
   }
 }
 
@@ -87,6 +88,16 @@ message ExtendLease {
 
 message Heartbeat {
   google.protobuf.Timestamp client_time = 1;
+}
+
+// Sent by a worker when one of its pools transitions to READY, so the gate can
+// proactively dispatch a GetPoolRecordsTask instead of waiting for an LMS-driven
+// poll. Fire-and-forget: the gate does not return a WorkResponse for it.
+// The gate uses the authenticated stream's org; org_id here is optional and is
+// only used for logging/verification (a mismatch is rejected, not trusted).
+message PoolReady {
+  string pool_id = 1;
+  string org_id = 2;
 }
 
 // ---------------------------------------------------------------------------
