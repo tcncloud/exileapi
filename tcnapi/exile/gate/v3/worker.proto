@@ -34,6 +34,7 @@ message WorkRequest {
     Nack nack = 5;
     ExtendLease extend_lease = 6;
     Heartbeat heartbeat = 7;
+    PoolReady pool_ready = 8;
   }
 }
 
@@ -87,6 +88,12 @@ message ExtendLease {
 
 message Heartbeat {
   google.protobuf.Timestamp client_time = 1;
+}
+
+// Worker signals a pool became READY so the gate can fetch its records.
+message PoolReady {
+  string pool_id = 1;
+  string org_id = 2;
 }
 
 // ---------------------------------------------------------------------------
