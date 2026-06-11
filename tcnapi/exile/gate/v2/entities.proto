@@ -245,7 +245,8 @@ message ExileTransferInstance {
     WARM_SKILL = 4; // Warm transfer to skill queue/hunt group
     COLD_AGENT = 5; // Cold transfer to another agent
     COLD_OUTBOUND = 6; // Cold transfer to external phone/PBX extension
-    CONFERENCE = 7; // Conference all parties together
+    REQUEUE = 7; // Requeue to skill/hunt group
+    PBX_DIAL = 8; // Dial to a PBX extension
   }
   enum TransferResultType {
     TRANSFER_RESULT_TYPE_UNSPECIFIED = 0;
