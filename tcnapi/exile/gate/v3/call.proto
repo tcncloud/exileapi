@@ -64,6 +64,11 @@ message DialRequest {
   optional string ruleset_name = 6;
   optional bool skip_compliance_checks = 7;
   optional bool record_call = 8;
+  // Arbitrary caller-supplied key/value data to associate with this manual
+  // dial (e.g. destination state/region for local-presence caller_id
+  // selection, reporting, or number mapping). Opaque to the platform — the
+  // values are carried through with the call, not interpreted here.
+  map<string, string> record_data = 9;
 }
 
 message DialResponse {
