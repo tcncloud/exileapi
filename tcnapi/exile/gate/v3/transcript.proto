@@ -1,0 +1,58 @@
+// Call transcript and AI summary retrieval service.
+
+syntax = "proto3";
+
+package tcnapi.exile.gate.v3;
+
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "tcnapi/exile/gate/v3/types.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
+option java_multiple_files = true;
+
+service TranscriptService {
+  rpc GetCallTranscriptSummary(GetCallTranscriptSummaryRequest) returns (GetCallTranscriptSummaryResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/transcripts/search"
+      body: "*"
+    };
+  }
+}
+
+message GetCallTranscriptSummaryRequest {
+  int64 call_sid = 1;
+  CallType call_type = 2;
+}
+
+message GetCallTranscriptSummaryResponse {
+  // False when no transcript exists for the call. Summarization is
+  // eventually-consistent, so a found transcript may still have a
+  // PENDING summary.
+  bool transcript_found = 1;
+  repeated TranscriptThread threads = 2;
+  repeated string summary_bullet_points = 3;
+  TranscriptSummaryStatus summary_status = 4;
+}
+
+message TranscriptThread {
+  int32 id = 1;
+  string user_id = 2;
+  repeated TranscriptSegment segments = 3;
+}
+
+message TranscriptSegment {
+  string text = 1;
+  google.protobuf.Duration offset = 2;
+  google.protobuf.Duration duration = 3;
+}
+
+enum TranscriptSummaryStatus {
+  TRANSCRIPT_SUMMARY_STATUS_UNSPECIFIED = 0;
+  // Transcript exists but summarization has not completed yet.
+  TRANSCRIPT_SUMMARY_STATUS_PENDING = 1;
+  // Summary bullet points are populated.
+  TRANSCRIPT_SUMMARY_STATUS_AVAILABLE = 2;
+  // Summarization failed.
+  TRANSCRIPT_SUMMARY_STATUS_ERRORED = 3;
+}
