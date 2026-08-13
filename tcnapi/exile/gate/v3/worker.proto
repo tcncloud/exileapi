@@ -12,6 +12,7 @@ package tcnapi.exile.gate.v3;
 import "google/protobuf/duration.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "tcnapi/exile/gate/v3/telemetry.proto";
 import "tcnapi/exile/gate/v3/types.proto";
 
 option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
@@ -300,7 +301,7 @@ message ListTenantLogsTask {
 
 message SetLogLevelTask {
   string logger_name = 1;
-  string level = 2;
+  LogLevel level = 2;
 }
 
 // ---------------------------------------------------------------------------
@@ -366,6 +367,7 @@ message DiagnosticsResult {
 message ListTenantLogsResult {
   repeated LogEntry entries = 1;
   string next_page_token = 2;
+  map<string, LogLevel> logger_levels = 3;
 
   message LogEntry {
     google.protobuf.Timestamp timestamp = 1;
