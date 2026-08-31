@@ -396,6 +396,7 @@ message Agent {
     int64 call_sid = 1;
     CallType call_type = 2;
     bool is_inbound = 3;
+    optional CallType original_call_type = 4;
   }
 }
 

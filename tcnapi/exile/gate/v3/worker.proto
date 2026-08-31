@@ -273,6 +273,7 @@ message PopAccountTask {
   int64 call_sid = 4;
   CallType call_type = 5;
   repeated Filter filters = 6;
+  optional CallType original_call_type = 7;
 }
 
 message ExecuteLogicTask {
