@@ -18,6 +18,13 @@ service TranscriptService {
       body: "*"
     };
   }
+
+  rpc GetCallTranscriptSegments(GetCallTranscriptSegmentsRequest) returns (GetCallTranscriptSegmentsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/transcripts/segments/search"
+      body: "*"
+    };
+  }
 }
 
 message GetCallTranscriptSummaryRequest {
@@ -45,6 +52,27 @@ message TranscriptSegment {
   string text = 1;
   google.protobuf.Duration offset = 2;
   google.protobuf.Duration duration = 3;
+}
+
+message GetCallTranscriptSegmentsRequest {
+  int64 call_sid = 1;
+  CallType call_type = 2;
+  string label = 3;
+  string value = 4;
+  google.protobuf.Duration start_offset = 5;
+  google.protobuf.Duration end_offset = 6;
+}
+
+message GetCallTranscriptSegmentsResponse {
+  repeated CallTranscriptSegment segments = 1;
+}
+
+message CallTranscriptSegment {
+  string label = 1;
+  string value = 2;
+  google.protobuf.Duration start_offset = 3;
+  google.protobuf.Duration end_offset = 4;
+  repeated TranscriptThread threads = 5;
 }
 
 enum TranscriptSummaryStatus {
