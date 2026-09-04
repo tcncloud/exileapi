@@ -374,6 +374,77 @@ message ExileTask {
   }
 }
 
+// Outcome of a single LMS pipeline run - ONE record per run, with the run's
+// exchanges nested under `exchanges` keyed by exchange_id. There is no
+// pipeline-level success/fail: a run either pulls no records (a red flag),
+// cancels specific exchanges, or executes them. A dead or reaped run still
+// emits one record with its unrun exchanges STATUS_CANCELED.
+message LMSPipeline {
+  // Format: "regions/{region}/orgs/{org}/lmsPipelines/{lms_pipeline}", where
+  // {lms_pipeline} is the lms_broker_queue_id (run id) - also the idempotency key.
+  string name = 1;
+  string entrypoint_id = 2;
+
+  // pool_id and any upstream pipeline messages.
+  map<string, string> metadata = 5;
+  // Keyed by exchange_id.
+  map<string, Exchange> exchanges = 6;
+
+  message Exchange {
+    // Exchange identity, e.g. {"campaign_id": "...", "campaign_name": "..."}.
+    // Keys are stable so consumers can correlate an exchange with a TaskGroup.
+    map<string, string> target = 1;
+
+    Status status = 10;
+    int64 input_record_count = 11;
+    int64 output_record_count = 12;
+    string system_message = 13;
+
+    enum Status {
+      STATUS_UNSPECIFIED = 0;
+      STATUS_EXECUTED = 1;
+      STATUS_CANCELED = 2;
+    }
+  }
+}
+
+// Campaign lifecycle, sourced from the skunk `task_group` table.
+message TaskGroup {
+  // Format: "regions/{region}/orgs/{org}/taskGroups/{task_group}", where
+  // {task_group} is the task_group_sid - also the idempotency key.
+  string name = 1;
+  string task_group_id = 2;
+  // Campaign display name (skunk task_name).
+  string task_name = 3;
+  // Normalized lifecycle; the gate maps the raw skunk status onto this.
+  State state = 4;
+  // Raw skunk status (1000-series). Retained because `state` collapses the
+  // cancel reasons (1310/1320/1330) into a single STATE_CANCELED.
+  int32 status_code = 5;
+
+  google.protobuf.Timestamp scheduled_start_time = 6;
+  google.protobuf.Timestamp scheduled_stop_time = 7;
+  google.protobuf.Timestamp start_time = 8;
+  google.protobuf.Timestamp stop_time = 9;
+
+  // client_sid, script_sid, etc. as needed.
+  map<string, string> metadata = 11;
+
+  enum State {
+    STATE_UNSPECIFIED = 0;
+    // skunk 1000/1100/1110/1120
+    STATE_SCHEDULED = 1;
+    // skunk 1200
+    STATE_RUNNING = 2;
+    // skunk 1210, 1120, 1220
+    STATE_PAUSED = 3;
+    // skunk 1300, 1400, 1500
+    STATE_COMPLETED = 4;
+    // skunk 1310/1320/1330 - reason preserved in status_code
+    STATE_CANCELED = 5;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Agent entity
 // ---------------------------------------------------------------------------

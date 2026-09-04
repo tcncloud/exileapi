@@ -346,6 +346,8 @@ No state needs to survive reconnection on the client side — the lease mechanis
 | `TRANSFER_INSTANCE` | `TransferInstance` | Call transfer tracking |
 | `CALL_RECORDING` | `CallRecording` | Recording metadata |
 | `TASK` | `Task` | Background task state change |
+| `PIPELINE_RESULT` | `LMSPipeline` | Outcome of one LMS pipeline run, exchanges nested by exchange_id |
+| `TASK_GROUP` | `TaskGroup` | Campaign lifecycle state from skunk `task_group` |
 
 ---
 

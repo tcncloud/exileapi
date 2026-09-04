@@ -161,6 +161,8 @@ message WorkItem {
     TransferInstance transfer_instance = 53;
     CallRecording call_recording = 54;
     ExileTask exile_task = 55;
+    LMSPipeline pipeline_result = 56;
+    TaskGroup task_group = 57;
   }
 }
 
@@ -222,6 +224,8 @@ enum WorkType {
   WORK_TYPE_TRANSFER_INSTANCE = 53;
   WORK_TYPE_CALL_RECORDING = 54;
   WORK_TYPE_TASK = 55;
+  WORK_TYPE_PIPELINE_RESULT = 56;
+  WORK_TYPE_TASK_GROUP = 57;
 }
 
 // ---------------------------------------------------------------------------
