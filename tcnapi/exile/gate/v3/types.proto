@@ -381,6 +381,7 @@ message LMSPipeline {
   string event_id = 4;
   map<string, string> metadata = 5;
   map<string, Exchange> exchanges = 6;
+  int64 record_count = 7;
 
   message Exchange {
     map<string, string> target = 1;
