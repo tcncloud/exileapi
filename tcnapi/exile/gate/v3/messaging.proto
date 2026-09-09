@@ -1,0 +1,55 @@
+// Ad-hoc SMS and email sending.
+
+syntax = "proto3";
+
+package tcnapi.exile.gate.v3;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
+option java_multiple_files = true;
+
+service MessagingService {
+  rpc SendSms(SendSmsRequest) returns (SendSmsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/messages:sendSms"
+      body: "*"
+    };
+  }
+
+  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/messages:sendEmail"
+      body: "*"
+    };
+  }
+}
+
+message SendSmsRequest {
+  int64 campaign_sid = 1;
+  string recipient = 2;
+  string body = 3;
+  string pool_id = 4;
+  string record_id = 5;
+  map<string, string> metadata = 6;
+}
+
+message SendEmailRequest {
+  int64 campaign_sid = 1;
+  string recipient = 2;
+  string subject = 3;
+  string body = 4;
+  string pool_id = 5;
+  string record_id = 6;
+  map<string, string> metadata = 7;
+}
+
+message SendSmsResponse {
+  // Correlation id, not a handle on the sent message.
+  string message_ref = 1;
+}
+
+message SendEmailResponse {
+  // Correlation id, not a handle on the sent message.
+  string message_ref = 1;
+}
