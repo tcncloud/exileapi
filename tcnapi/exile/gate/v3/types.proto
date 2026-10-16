@@ -423,6 +423,31 @@ message TaskGroup {
   }
 }
 
+message MessageStatus {
+  string message_ref = 1;
+  string pool_id = 2;
+  string record_id = 3;
+  Channel channel = 4;
+  Status status = 5;
+  string status_message = 6;
+  google.protobuf.Timestamp update_time = 7;
+  string org_id = 8;
+  map<string, string> metadata = 9;
+
+  enum Channel {
+    CHANNEL_UNSPECIFIED = 0;
+    CHANNEL_SMS = 1;
+    CHANNEL_EMAIL = 2;
+  }
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_SENT = 1;
+    STATUS_DELIVERED = 2;
+    STATUS_FAILED = 3;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Agent entity
 // ---------------------------------------------------------------------------

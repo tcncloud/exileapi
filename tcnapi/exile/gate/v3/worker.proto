@@ -163,6 +163,7 @@ message WorkItem {
     ExileTask exile_task = 55;
     LMSPipeline pipeline_result = 56;
     TaskGroup task_group = 57;
+    MessageStatus message_status = 58;
   }
 }
 
@@ -226,6 +227,7 @@ enum WorkType {
   WORK_TYPE_TASK = 55;
   WORK_TYPE_PIPELINE_RESULT = 56;
   WORK_TYPE_TASK_GROUP = 57;
+  WORK_TYPE_MESSAGE_STATUS = 58;
 }
 
 // ---------------------------------------------------------------------------

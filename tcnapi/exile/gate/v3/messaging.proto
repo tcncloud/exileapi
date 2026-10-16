@@ -45,11 +45,9 @@ message SendEmailRequest {
 }
 
 message SendSmsResponse {
-  // Correlation id, not a handle on the sent message.
   string message_ref = 1;
 }
 
 message SendEmailResponse {
-  // Correlation id, not a handle on the sent message.
   string message_ref = 1;
 }
