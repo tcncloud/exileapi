@@ -5,6 +5,7 @@ syntax = "proto3";
 package tcnapi.exile.gate.v3;
 
 import "google/api/annotations.proto";
+import "tcnapi/exile/gate/v3/types.proto";
 
 option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
 option java_multiple_files = true;
@@ -22,6 +23,11 @@ service MessagingService {
       post: "/tcnapi/exile/gate/v3/messages:sendEmail"
       body: "*"
     };
+  }
+
+  // Only campaigns that can send right now.
+  rpc ListCampaigns(ListCampaignsRequest) returns (ListCampaignsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/messages/campaigns"};
   }
 }
 
@@ -50,4 +56,19 @@ message SendSmsResponse {
 
 message SendEmailResponse {
   string message_ref = 1;
+}
+
+message ListCampaignsRequest {
+  // CHANNEL_UNSPECIFIED lists both SMS and email campaigns.
+  MessageStatus.Channel channel = 1;
+}
+
+message ListCampaignsResponse {
+  repeated MessagingCampaign campaigns = 1;
+}
+
+message MessagingCampaign {
+  int64 campaign_sid = 1;
+  string name = 2;
+  MessageStatus.Channel channel = 3;
 }
