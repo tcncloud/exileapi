@@ -1,0 +1,74 @@
+// Ad-hoc SMS and email sending.
+
+syntax = "proto3";
+
+package tcnapi.exile.gate.v3;
+
+import "google/api/annotations.proto";
+import "tcnapi/exile/gate/v3/types.proto";
+
+option go_package = "github.com/tcncloud/exileapi/tcnapi/exile/gate/v3;gatev3";
+option java_multiple_files = true;
+
+service MessagingService {
+  rpc SendSms(SendSmsRequest) returns (SendSmsResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/messages:sendSms"
+      body: "*"
+    };
+  }
+
+  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse) {
+    option (google.api.http) = {
+      post: "/tcnapi/exile/gate/v3/messages:sendEmail"
+      body: "*"
+    };
+  }
+
+  // Only campaigns that can send right now.
+  rpc ListCampaigns(ListCampaignsRequest) returns (ListCampaignsResponse) {
+    option (google.api.http) = {get: "/tcnapi/exile/gate/v3/messages/campaigns"};
+  }
+}
+
+message SendSmsRequest {
+  int64 campaign_sid = 1;
+  string recipient = 2;
+  string body = 3;
+  string pool_id = 4;
+  string record_id = 5;
+  map<string, string> metadata = 6;
+}
+
+message SendEmailRequest {
+  int64 campaign_sid = 1;
+  string recipient = 2;
+  string subject = 3;
+  string body = 4;
+  string pool_id = 5;
+  string record_id = 6;
+  map<string, string> metadata = 7;
+}
+
+message SendSmsResponse {
+  string message_ref = 1;
+}
+
+message SendEmailResponse {
+  string message_ref = 1;
+}
+
+message ListCampaignsRequest {
+  // CHANNEL_UNSPECIFIED lists both SMS and email campaigns.
+  MessageStatus.Channel channel = 1;
+}
+
+message ListCampaignsResponse {
+  repeated MessagingCampaign campaigns = 1;
+}
+
+message MessagingCampaign {
+  int64 campaign_sid = 1;
+  string name = 2;
+  MessageStatus.Channel channel = 3;
+}
